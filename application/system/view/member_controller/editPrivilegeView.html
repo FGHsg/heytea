@@ -1,0 +1,114 @@
+<style>
+    .add-privilege{
+        width: 100%;
+        overflow-x: scroll;
+    }
+    .input-date {
+        margin-top: 10px;
+        display: flex;
+    }
+    .add-privilege form{
+        width: 50%;
+    }
+    .input-date input{
+        height: 30px;
+        width: 160px;
+    }
+    .flex-input{
+        display: flex;
+        align-items: center;
+    }
+    .flex-input input{
+        width: 140px;
+    }
+</style>
+<div class="layui-body">
+    <div class="add-privilege">
+        <fieldset class="layui-elem-field layui-field-title" style="width:70%;">
+            <legend>修改特权</legend>
+        </fieldset>
+        <form class="layui-form" action="{:url('@system/editPrivilegeOperation')}" method="post" enctype="multipart/form-data">
+            <input name="p_id" value="{$privilege.p_id}" style="display: none">
+            <div class="layui-form-item">
+                <label class="layui-form-label">特权</label>
+                <div class="layui-input-block">
+                    <input value="{$privilege.p_name}" name="p_name" class="layui-input" placeholder="输入特权名称" style="width: 200px;">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">需要等级</label>
+                <div class="layui-input-block" style="width: 200px;">
+                    <select name="pg_id">
+                        <option value=""></option>
+                        {volist name="grade" id="vo"}
+                        <option value="{$vo.g_id}">{$vo.g_name}</option>
+                        {/volist}
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">图片</label>
+                <div class="layui-input-block">
+                    <div class="layui-btn layui-btn-normal layui-btn-small" id="headPicture" style="width: 70px;height: 30px;">
+                        <input value="{$privilege.p_img}" name="p_img" accept="image/*" type="file" onchange="imgPreview(this)" style="position:absolute;left:0;height:30px;align-items:center;z-index:1;opacity: 0;">
+                        <div style="position: absolute;z-index: 0;">上传图片</div>
+                    </div>
+                    <img src="{$privilege.p_img}" id="preview">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">特权描述</label>
+                <div class="layui-input-block">
+                    <textarea name="p_introduction" value="{$privilege.p_introduction}" class="layui-textarea" style="width: 500px;">{$privilege.p_introduction}</textarea>
+                </div>
+            </div>
+            <div class="layui-input-block">
+                <button type="submit" class="layui-btn layui-btn-small layui-btn-normal">修改</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    function imgPreview(fileDom){
+        //判断是否支持FileReader
+        if (window.FileReader) {
+            var reader = new FileReader();
+        } else {
+            alert("您的设备不支持图片预览功能，如需该功能请升级您的设备！");
+        }
+
+        //获取文件
+        var file = fileDom.files[0];
+        var imageType = /^image\//;
+        //是否是图片
+        if (!imageType.test(file.type)) {
+            alert("请选择图片！");
+            return;
+        }
+        //读取完成
+        reader.onload = function(e) {
+            if(fileDom.name == 'p_img'){
+                //获取图片dom
+                var img = document.getElementById("preview");
+                //图片路径设置为读取的图片
+                img.src = e.target.result;
+                img.width = 134.4;
+                img.height = 75;
+            }
+
+        };
+        reader.readAsDataURL(file);
+    }
+    window.onload = function () {
+        layui.use(['form'],function () {
+            var form = layui.form;
+            document.getElementsByName('pg_id')[0].value = "{$privilege.pg_id}";
+            form.render();
+        })
+    }
+    layui.use(['form'],function () {
+        var form = layui.form;
+    })
+</script>

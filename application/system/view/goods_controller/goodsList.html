@@ -1,0 +1,254 @@
+<style>
+    .main-part-article{
+        width: 100%;
+        overflow-x: scroll;
+    }
+    .main-part-article-header{
+        height: 40px;
+        padding-left: 20px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        background-color: #F0F0F0;
+        border-bottom: 1px solid;
+        border-color: #c2c2c2;
+    }
+    .action-part{
+        padding-left: 20px;
+    }
+    .action-part-top{
+        display: flex;
+        height: 50px;
+        align-items: center;
+        margin: 0;
+    }
+    .action-part-top input{
+        width: 150px;
+        margin-right: 20px;
+    }
+    .action-part form{
+        flex-direction: column;
+    }
+    .action-part form div{
+        flex-direction: row;
+    }
+    .action-part table{
+        margin: 0;
+    }
+</style>
+<div class="layui-body">
+    <div class="main-part-article"><!--页面主体-->
+        <div class="action-part">
+            <form class="layui-form" action="{:url('@system/goodsList')}" method="post">
+                <div class="action-part-top layui-form-item">
+                    <input type="text" name="create_time" id="chosetime"  placeholder="选择时间范围" class="layui-input" style="width: auto;">
+                    <div class="layui-input-inline" style="width: 150px;">
+                        <select lay-filter="select" name="gc_name" lay-verify="required">
+                            <option value="">选择分类</option>
+                            {volist name="goods_class" id="vo"}
+                            <option value="{$vo.gc_name}">{$vo.gc_name}</option>
+                            {/volist}
+                        </select>
+                    </div>
+                    <input onblur="submit()" type="text" name="g_name" id="commodityname"  placeholder="商品名称" class="layui-input" style="width: auto;">
+                    <div class="layui-input-inline" style="width: 150px;">
+                        <select name="g_sale" lay-filter="select" lay-verify="">
+                            <option value="">状态</option>
+                            <option value="1">上架</option>
+                            <option value="0">下架</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline" style="width: 150px;">
+                        <select name="g_recommend" lay-filter="select" lay-verify="">
+                            <option value="">是否推荐</option>
+                            <option value="1">是</option>
+                            <option value="0">否</option>
+                        </select>
+                    </div>
+                    <button type="button" onclick="clearForm()" class="layui-btn layui-btn-normal layui-btn-small">重置</button>
+                </div>
+                <div class="action-part-top">
+                    <a class="layui-btn-small layui-btn layui-btn-normal" href="{:url('@system/addGoodsView')}">添加商品</a>
+                    <button type="button" onclick="grounding(1)" class="layui-btn-small layui-btn layui-btn-normal">批量上架</button>
+                    <button type="button" onclick="grounding(0)" class="layui-btn-small layui-btn layui-btn-warm">批量下架</button>
+                    {if $Request.get.table==1}
+                    <a type="button" class="layui-btn-small layui-btn layui-btn-normal" href="{:url('@system/goodsList',['table'=>0])}">全部商品</a>
+                    {else/}
+                    <a type="button" class="layui-btn-small layui-btn layui-btn-normal" href="{:url('@system/goodsList',['table'=>1])}">已售罄商品</a>
+                    {/if}
+                </div>
+            </form>
+
+            <table class="layui-table" id="table" lay-filter="table">
+                <thead>
+                <tr>
+                    <th lay-data="{checkbox: true,field: 'g_id'}"></th>
+                    <th lay-data="{field: 'g_compression', width: 120, align: 'center'}">缩略图</th>
+                    <th lay-data="{field: 'gc_name', width: 120, align: 'center'}">商品分类</th>
+                    <th lay-data="{field: 'g_name', width: 120, align: 'center'}">商品名称</th>
+                    <th lay-data="{field: 'g_introduction', width: 240, align: 'center'}">商品描述</th>
+                    <th lay-data="{field: 'g_rest', width: 80, align: 'center'}">库存</th>
+                    <th lay-data="{field: 'g_recommend', width: 100, align: 'center'}">是否推荐</th>
+                    <th lay-data="{field: 'g_sale', width: 100, align: 'center'}">状态</th>
+                    <th lay-data="{field: 'createtime', width: 170, align: 'center'}">创建时间</th>
+                    <th lay-data="{field: 'action', width: 220, align: 'center', toolbar: '#action'}">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {volist name="goods" id="vo"}
+                <tr>
+                    <td class="g_id">{$vo.g_id}</td>
+                    <td><img src="{$vo.g_compression}" width="50px;"></td>
+                    <td>{$vo.gc_name}</td>
+                    <td>{$vo.g_name}</td>
+                    <td>{:html_entity_decode($vo.g_introduction)}</td>
+                    <td>
+                        {volist name="g_rest" id="vogr"}
+                        {if $vogr.g_id == $vo.g_id}
+                            {if $vogr.g_rest==-1}
+                                无限
+                            {else/}
+                                {$vogr.g_rest}
+                            {/if}
+                        {/if}
+                        {/volist}
+                    </td>
+                    <td>{if $vo.g_recommend==0}否{else/}是{/if}</td>
+                    <td>{if $vo.g_sale==0}下架{else/}上架{/if}</td>
+                    <td>{$vo.create_time}</td>
+                    <td>
+                        <a class="layui-btn layui-btn-normal layui-btn-mini" href="{:url('@system/goodsDetail',['g_id'=>$vo.g_id])}">详情</a>
+                        <a class="layui-btn layui-btn-normal layui-btn-mini" href="{:url('@system/editGoodsView',['g_id'=>$vo.g_id])}">编辑</a>
+                        {if $vo.g_sale==1}
+                        <a class="layui-btn layui-btn-warm layui-btn-mini" href="{:url('@system/grounding',['g_id'=>$vo.g_id,'table'=>0])}">下架</a>
+                        {else/}
+                        <a class="layui-btn layui-btn-normal layui-btn-mini" href="{:url('@system/grounding',['g_id'=>$vo.g_id,'table'=>1])}">上架</a>
+                        {/if}
+                        <button class="layui-btn layui-btn-danger layui-btn-mini" onclick="deleteGood('{$vo.g_id}')">删除</button>
+                    </td>
+                </tr>
+                {/volist}
+                </tbody>
+            </table>
+            <div class="fenyeWrap">
+                <div id="fenye"></div>
+                <div>共 {$goods->total()} 条</div>
+            </div>
+            <script>
+                var gidList = [];
+                window.onload = function () {
+                    layui.use('form',function () {
+                        var form = layui.form;
+                        form.on('select(select)',function (data) {
+                            document.getElementsByClassName('layui-form')[0].submit();
+                        })
+                        document.getElementsByName('create_time')[0].value = "{$create_time}";
+                        document.getElementsByName('gc_name')[0].value = "{$gc_name}";
+                        document.getElementsByName('g_name')[0].value = "{$g_name}";
+                        document.getElementsByName('g_sale')[0].value = "{$g_sale}";
+                        document.getElementsByName('g_recommend')[0].value = "{$g_recommend}";
+                        form.render();
+                    })
+
+                }
+                function clearForm() {
+                    layui.use('form',function () {
+                        var form = layui.form;
+                        document.getElementsByName('create_time')[0].value = "";
+                        document.getElementsByName('gc_name')[0].value = "";
+                        document.getElementsByName('g_name')[0].value = "";
+                        document.getElementsByName('g_sale')[0].value = "";
+                        document.getElementsByName('g_recommend')[0].value = "";
+                        form.render();
+                    })
+                }
+                function deleteGood(g_id) {
+                    layui.use('layer',function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            type:1,
+                            title: '确认删除',
+                            btn: ['确定','取消'],
+                            yes: function () {
+                                location.href = "{:url('@system/deleteGoods')}" + "?g_id=" + g_id;
+                            }
+                        })
+                    })
+                }
+                function grounding(label) {
+                    console.log(gidList);
+                    location.href = "{:url('@system/grounding')}" + '?g_id=' + JSON.stringify(gidList) + "&table=" + label;
+                }
+                layui.use(['table', 'layer','laypage','laydate'], function () {
+                    var table = layui.table;
+                    var layer = layui.layer;
+                    var $ = layui.jquery;
+                    var laypage = layui.laypage;
+                    var laydate = layui.laydate;
+                    laydate.render({
+                        elem: '#chosetime',
+                        range: '-',
+                        done: function (value, date, endDate) {
+                            document.getElementsByName('create_time')[0].value = value;
+                            document.getElementsByClassName('layui-form')[0].submit();
+                        }
+                    })
+                    table.init('table',{
+                        width: 1328,
+                        even: true
+                    });
+                    table.on('checkbox(table)',function (obj) {
+                        //console.log(obj.data);
+                        if(obj.type == 'one'){
+                            if(obj.checked){
+                                flag = 0;
+                                for(var i = 0;i < gidList.length;i++){
+                                    if(gidList[i] == obj.data.g_id){
+                                        flag = 1;
+                                    }
+                                }
+                                if(flag != 1){
+                                    gidList.push(obj.data.g_id);
+                                }
+                            }else{
+                                flag = 1;
+                                for(var i = 0;i < gidList.length;i++){
+                                    if(gidList[i] == obj.data.g_id){
+                                        gidList.splice(i,1);
+                                    }
+                                }
+                            }
+                        }else if(obj.type == 'all'){
+                            console.log(obj.checked);
+                            for(var i = 0;i < document.getElementsByClassName('g_id').length;i++){
+                                if(gidList[i] == document.getElementsByClassName('g_id')[i].innerHTML){
+
+                                }else{
+                                    gidList.push(document.getElementsByClassName('g_id')[i].innerHTML);
+                                }
+                            }
+                        }
+                        console.log(gidList)
+
+                    })
+                    var queryVar = getAllQueryVariableWithout(['page']);//不包含page的变量字符串
+                    laypage.render({
+                        elem: 'fenye',
+                        count: "{:config('paginate')['list_rows'] * $goods->lastPage()}", //数据总数
+                        limit: "{:config('paginate')['list_rows']}",//每页显示的条数
+                        curr: "{$Request.get.page}", //当前页
+                        groups: 5, //连续显示分页数
+                        layout: ['prev', 'page', 'next', 'skip'],
+                        jump: function(obj, first){
+                            if(!first){
+                                var currPage = obj.curr;//得到了当前页，用于向服务端请求对应数据
+                                location.href = "{:url('@system/goodsList')}" + queryVar + 'page=' + currPage;
+                            }
+                        }
+                    });
+                });
+
+            </script>
+        </div>
+    </div>
+</div>

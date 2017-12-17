@@ -1,0 +1,132 @@
+<style>
+	#adminHeadImg{
+		display: inline-block;
+		margin-left: 15px;
+	}
+	#adminHeadImg>img{
+		height: 40px;
+	}
+</style>
+{if condition="$Think.cookie.isExpand == 'off'"}
+<div class="layui-body" style="left:0px;">
+{else/}
+<div class="layui-body">
+{/if}
+	<div class="layui-tab-content">
+		<fieldset class="layui-elem-field layui-field-title">
+			<legend>修改管理员</legend>
+		</fieldset>
+		<form class="layui-form" action="{:url('@system/editAdmin')}" enctype="multipart/form-data" method="post">
+			<input type="hidden" name="id" value="{$data.id}" />
+			<div class="layui-form-item">
+				<label class="layui-form-label">帐号</label>
+				<div class="layui-input-inline">
+					{notin name="$data.admin_account" value="$passAdmins"}
+					<input type="text" name="admin_account" value="{$data.admin_account}" placeholder="管理员帐号" class="layui-input" required="required" maxlength="30">
+					{else/}
+					<input type="hidden" name="admin_account" value="{$data.admin_account}" />
+					<input type="text" name="" value="{$data.admin_account}" placeholder="管理员帐号" class="layui-input" required="required" maxlength="30" disabled="disabled">
+					{/notin}
+				</div>
+				<div class="layui-form-mid layui-word-aux star">必填</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">密码</label>
+				<div class="layui-input-inline">
+					<input type="password" name="admin_password" value="" placeholder="密码留空则不修改" class="layui-input" autocomplete="off">
+				</div>
+				<div class="layui-form-mid layui-word-aux star">必填</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">确认密码</label>
+				<div class="layui-input-inline">
+					<input type="password" name="admin_confirm_password" value="" placeholder="密码留空则不修改" class="layui-input" autocomplete="off">
+				</div>
+				<div class="layui-form-mid layui-word-aux star">必填</div>
+			</div>
+			<div class="layui-form-item" pane="">
+				<label class="layui-form-label">所属角色</label>
+				<div class="layui-input-block">
+					{in name="$data.admin_account" value="$passAdmins"}
+						<input type="checkbox" lay-skin="primary" title="系统管理员" checked="checked" disabled="disabled">
+					{else/}
+						{volist name="roleList" id="vo"}
+						{in name="$vo.id" value="$adminRoleList"}
+						<input type="checkbox" name="role_ids[]" value="{$vo.id}" lay-skin="primary" title="{$vo.role_name}" checked="checked">
+						{else/}
+						<input type="checkbox" name="role_ids[]" value="{$vo.id}" lay-skin="primary" title="{$vo.role_name}">
+						{/in}
+						{/volist}
+					{/in}
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">姓名</label>
+				<div class="layui-input-inline">
+					<input type="text" name="admin_fullname" value="{$data.admin_fullname}" placeholder="管理员姓名" class="layui-input" maxlength="255">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">手机号码</label>
+				<div class="layui-input-inline">
+					<input type="text" name="admin_phone" value="{$data.admin_phone}" placeholder="管理员手机号码" class="layui-input" maxlength="11">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">头像</label>
+				<div class="layui-input-inline">
+					<input type="hidden" name="admin_head" value="{$data.admin_head}" />
+					<label for="upload_admin_head" class="myUploadBtn">上传头像</label>
+					<input type="file" name="upload_admin_head" id="upload_admin_head" value="" class="layui-upload-file">
+					<div id="adminHeadImg">
+						{notempty name="$data.admin_head"}
+						<img src="{$data.admin_head}" alt="" />
+						{/notempty}
+					</div>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">状态</label>
+				<div class="layui-input-block">
+					{notin name="$data.admin_account" value="$passAdmins"}
+						{if condition="$data.status == 1 || $data.status ==null"}
+						<input type="checkbox" name="status" value="1" lay-skin="switch" lay-filter="status" lay-text="正常|禁用" checked>
+						{else/}
+						<input type="checkbox" name="status" value="1" lay-skin="switch" lay-filter="status" lay-text="正常|禁用">
+						{/if}
+					{else/}
+						<input type="hidden" name="status" value="1" />
+						<input type="checkbox" name="" value="1" lay-skin="switch" lay-filter="status" lay-text="正常|禁用" checked disabled="disabled">
+					{/notin}
+				</div>
+			</div>
+			<div class="layui-form-item submit-item">
+				<div class="layui-input-block">
+					<button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<script>
+	//上传管理员头像
+	layui.use(['upload','form'], function(){
+		var upload = layui.upload;
+		
+		//上传管理员头像
+		upload.render({
+			elem: '#upload_admin_head',
+			url: "{:url('@system/uploadAdminHead')}",
+			done: function(data, index, upload){ //上传后的回调
+				if(data.isok==true){
+					$("#adminHeadImg").html('<img src="'+data.imgPath+'" />');
+					$("[name=admin_head]").val(data.imgPath);
+				}else if(data.isok==false){
+					showTs(0,data.msg,3000);
+				}else{
+					showTs(0,'网络异常，请稍候再试',3000);
+				}
+			} 
+		});		
+	});
+</script>

@@ -1,0 +1,209 @@
+<style>
+    .shop-edit-view{
+        width: 100%;
+        overflow-x: scroll;
+        display: flex;
+    }
+    .shop-edit-view a{
+        margin-top: 60px;
+        margin-left: 20px;
+    }
+    .shop-edit{
+        width: 70%;
+    }
+    .input-date {
+        margin-top: 10px;
+        display: flex;
+    }
+    .input-date input{
+        height: 30px;
+        width: 160px;
+    }
+    .flex-input{
+        display: flex;
+        align-items: center;
+    }
+    .flex-input input{
+        width: 140px;
+    }
+</style>
+<div class="layui-body">
+    <div class="shop-edit-view">
+        <div class="shop-edit">
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>店铺设置</legend>
+            </fieldset>
+            {volist name="business" id="vo"}
+            <form class="layui-form">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">营业状态</label>
+                    <div class="layui-input-block">
+                        {if $vo.b_rest==1}
+                        <button disabled class="layui-btn layui-btn-small layui-btn-normal">营业中</button>
+                        {elseif $vo.b_rest==0}
+                        <button disabled class="layui-btn layui-btn-small layui-btn-normal">打烊</button>
+                        {/if}
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">营业时间</label>
+                    <div class="layui-input-block">
+                        <div>
+                            {if $vo.b_open_date[0]==0}
+                            <input disabled type="checkbox" lay-skin="primary" title="星期一">
+                            {elseif $vo.b_open_date[0]==1/}
+                            <input disabled type="checkbox" lay-skin="primary" title="星期一" checked>
+                            {/if}
+                            {if $vo.b_open_date[1]==0}
+                            <input disabled type="checkbox" lay-skin="primary" title="星期二">
+                            {elseif $vo.b_open_date[1]==1/}
+                            <input disabled type="checkbox" lay-skin="primary" title="星期二" checked>
+                            {/if}
+                            {if $vo.b_open_date[2]==0}
+                            <input disabled type="checkbox" lay-skin="primary" title="星期三">
+                            {elseif $vo.b_open_date[2]==1/}
+                            <input disabled type="checkbox" lay-skin="primary" title="星期三" checked>
+                            {/if}
+                            {if $vo.b_open_date[3]==0}
+                            <input disabled type="checkbox" lay-skin="primary" title="星期四">
+                            {elseif $vo.b_open_date[3]==1/}
+                            <input disabled type="checkbox" lay-skin="primary" title="星期四" checked>
+                            {/if}
+                            {if $vo.b_open_date[4]==0}
+                            <input disabled type="checkbox" lay-skin="primary" title="星期五">
+                            {elseif $vo.b_open_date[4]==1/}
+                            <input disabled type="checkbox" lay-skin="primary" title="星期五" checked>
+                            {/if}
+                            {if $vo.b_open_date[5]==0}
+                            <input disabled type="checkbox" lay-skin="primary" title="星期六">
+                            {elseif $vo.b_open_date[5]==1/}
+                            <input disabled type="checkbox" lay-skin="primary" title="星期六" checked>
+                            {/if}
+                            {if $vo.b_open_date[6]==0}
+                            <input disabled type="checkbox" lay-skin="primary" title="星期日">
+                            {elseif $vo.b_open_date[6]==1/}
+                            <input disabled type="checkbox" lay-skin="primary" title="星期日" checked>
+                            {/if}
+                        </div>
+                        <div class="input-date">
+                            <input disabled value="{$vo.b_tea_begin}" id="chooseStartTime" class="layui-input" placeholder="选择开始时间">
+                            <div style="font-size: 30px;text-align: center;width: 60px;">—</div>
+                            <input disabled value="{$vo.b_tea_end}" id="chooseEndTime" class="layui-input" placeholder="选择结束时间">
+                        </div>
+                        <div class="layui-word-aux">备注：系统会根据营业时间自动变更营业状态</div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">起送价</label>
+                    <div class="layui-input-inline">
+                        <div class="flex-input">
+                            <input disabled class="layui-input" value="{$vo.b_minprice}" placeholder="输入起送价钱">
+                            <div class="layui-word-aux">元</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">服务费</label>
+                    <div class="layui-input-block">
+                        <div class="flex-input">
+                            饭盒：<input disabled value="{$vo.b_lunchbox}" class="layui-input" placeholder="输入饭盒费">元
+                        </div>
+                        <div class="flex-input">
+                            运费：<input disabled value="{$vo.b_distribution}" class="layui-input" placeholder="输入运费">元
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系电话</label>
+                    <div class="layui-input-block">
+                        <div class="flex-input">
+                            <input value="{$vo.b_phone}" disabled class="layui-input" placeholder="输入联系电话">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">店铺地址</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input" value="{$vo.b_address}" style="width: 50%;"></input>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">配送范围</label>
+                    <div class="layui-input-block">
+                        <div class="flex-input">
+                            <input disabled class="layui-input" value="{$vo.b_area}" placeholder="输入配送范围">
+                            <div class="layui-word-aux">km</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">打印连单数</label>
+                    <div class="layui-input-block">
+                        {if $vo.b_voucher_number==1}
+                        <input disabled type="radio" name="order-number" title="1" lay-skin="primary" checked>
+                        {else/}
+                        <input disabled type="radio" name="order-number" title="1" lay-skin="primary">
+                        {/if}
+                        {if $vo.b_voucher_number==2}
+                        <input disabled type="radio" name="order-number" title="2" lay-skin="primary" checked>
+                        {else/}
+                        <input disabled type="radio" name="order-number" title="2" lay-skin="primary">
+                        {/if}
+                        {if $vo.b_voucher_number==3}
+                        <input disabled type="radio" name="order-number" title="3" lay-skin="primary" checked>
+                        {else/}
+                        <input disabled type="radio" name="order-number" title="3" lay-skin="primary">
+                        {/if}
+                        {if $vo.b_voucher_number==4}
+                        <input disabled type="radio" name="order-number" title="4" lay-skin="primary" checked>
+                        {else/}
+                        <input disabled type="radio" name="order-number" title="4" lay-skin="primary">
+                        {/if}
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">自动接单</label>
+                    <div class="layui-input-block">
+                        {if $vo.b_autoorder==1}
+                        <input disabled type="checkbox" name="switch" lay-skin="switch" lay-text="开|关" checked="">
+                        {elseif $vo.b_autoorder==0/}
+                        <input disabled type="checkbox" name="switch" lay-skin="switch" lay-text="开|关">
+                        {/if}
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">接单时自动打印</label>
+                    <div class="layui-input-block">
+                        {if $vo.b_autoprint==1}
+                        <input disabled type="checkbox" name="switch" lay-skin="switch" lay-text="开|关" checked="">
+                        {elseif $vo.b_autoprint==0/}
+                        <input disabled type="checkbox" name="switch" lay-skin="switch" lay-text="开|关">
+                        {/if}
+                    </div>
+                </div>
+                <div class="layui-input-block">
+
+                </div>
+            </form>
+            {/volist}
+        </div>
+        <a class="layui-btn layui-btn-small layui-btn-normal" href="{:url('@system/editBusinessInformation')}">编辑</a>
+    </div>
+</div>
+
+
+<script>
+    layui.use(['form','laydate'],function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var laydateEnd = layui.laydate;
+        laydate.render({
+            elem: "#chooseStartTime",
+            type: 'time',
+        })
+        laydateEnd.render({
+            elem: "#chooseEndTime",
+            type: 'time',
+        })
+    })
+</script>

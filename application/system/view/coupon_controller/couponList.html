@@ -1,0 +1,130 @@
+<style>
+    .main-part-article{
+        width: 100%;
+        overflow-x: scroll;
+    }
+    .action-part{
+        padding-left: 20px;
+    }
+    .action-part-top{
+        display: flex;
+        height: 50px;
+        align-items: center;
+        margin: 0;
+    }
+    .action-part-top input{
+        width: 150px;
+        margin-right: 20px;
+    }
+    .action-part form{
+        flex-direction: column;
+    }
+    .action-part form div{
+        flex-direction: row;
+    }
+    .action-part table{
+        margin: 0;
+    }
+</style>
+<div class="layui-body">
+    <div class="main-part-article"><!--页面主体-->
+        <div class="action-part">
+            <form class="layui-form" lay-filter="form" action="{:url('@system/couponList')}" method="POST">
+                <div class="action-part-top layui-form-item">
+                    <input type="text" name="create_time" id="chosetime"  placeholder="选择时间范围" class="layui-input" style="width: auto">
+                    <input onblur="submit()" type="text" name="u_nickname"placeholder="搜索用户" autocomplete="off" class="layui-input">
+                    <input onblur="submit()" type="text" name="c_id"placeholder="搜索兑换券号码" autocomplete="off" class="layui-input">
+                    <button type="button" onclick="clearForm()" class="layui-btn layui-btn-normal">重置</button>
+                    <a class="layui-btn layui-btn-normal" href="{:url('@system/goodsCouponList')}">兑换设置</a>
+                </div>
+            </form>
+
+            <table class="layui-table" id="table" lay-filter="table">
+                <thead>
+                <tr>
+                    <th lay-data="{field: 'c_id', width:120, align: 'center'}">兑换券号码</th>
+                    <th lay-data="{field: 'u_nickname', width:100, align: 'center'}">用户</th>
+                    <th lay-data="{field: 'c_target_name', width:120, align: 'center'}">饮品</th>
+                    <th lay-data="{field: 'g_content', width:120, align: 'center'}">商品规格</th>
+                    <th lay-data="{field: 'c_cost', width:260, align: 'center'}">所需树叶数量</th>
+                    <th lay-data="{field: 'create_time', width:210, align: 'center'}">兑换时间</th>
+                    <th lay-data="{field: 'action', width:130, align: 'center'}">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {volist name="couponList" id="vo"}
+                <tr>
+                    <td>{$vo.c_id}</td>
+                    <td>{$vo.u_nickname}</td>
+                    <td>{$vo.c_target_name}</td>
+                    <td>{$vo.g_content}</td>
+                    <td>{$vo.c_cost}</td>
+                    <td>{$vo.create_time}</td>
+                    <td>
+                        <a class="layui-btn layui-btn-normal layui-btn-mini" id="isshow" href="{:url('@system/updateCouponStatus',['page'=>$Request.get.page,'c_id'=>$vo.c_id,'label'=>'1'])}">同意</a>
+                        <a class="layui-btn layui-btn-danger layui-btn-mini" id="ishide" href="{:url('@system/updateCouponStatus',['page'=>$Request.get.page,'c_id'=>$vo.c_id,'label'=>'0'])}">拒绝</a>
+                    </td>
+                </tr>
+                {/volist}
+                </tbody>
+            </table>
+            <div class="fenyeWrap">
+                <div id="fenye"></div>
+                <div>共 {$couponList->total()} 条</div>
+            </div>
+            <script>
+                window.onload = function () {
+                    layui.use('form',function () {
+                        var form = layui.form;
+                        document.getElementsByName('create_time')[0].value = "{$create_time}";
+                        document.getElementsByName('u_nickname')[0].value = "{$u_nickname}";
+                        document.getElementsByName('c_id')[0].value = "{$c_id}";
+                        form.render();
+                    })
+                }
+                function clearForm() {
+                    layui.use('form',function () {
+                        var form = layui.form;
+                        document.getElementsByName('create_time')[0].value = "";
+                        document.getElementsByName('u_nickname')[0].value = "";
+                        document.getElementsByName('c_id')[0].value = "";
+                        form.render();
+                    })
+                }
+                layui.use(['table', 'layer', 'form', 'laydate','laypage'], function () {
+                    var table = layui.table;
+                    var layer = layui.layer;
+                    var form = layui.form;
+                    var laydate = layui.laydate;
+                    var laypage = layui.laypage;
+                    var $ = layui.jquery;
+                    laydate.render({
+                        elem: '#chosetime',
+                        range: '-',
+                        done: function (value, date, endDate) {
+                            document.getElementsByName('create_time')[0].value = value;
+                            document.getElementsByClassName('layui-form')[0].submit();
+                        }
+                    })
+                    var queryVar = getAllQueryVariableWithout(['page']);//不包含page的变量字符串
+                    laypage.render({
+                        elem: 'fenye',
+                        count: "{:config('paginate')['list_rows'] * $couponList->lastPage()}", //数据总数
+                        limit: "{:config('paginate')['list_rows']}",//每页显示的条数
+                        curr: "{$Request.get.page}", //当前页
+                        groups: 5, //连续显示分页数
+                        layout: ['prev', 'page', 'next', 'skip'],
+                        jump: function(obj, first){
+                            if(!first){
+                                var currPage = obj.curr;//得到了当前页，用于向服务端请求对应数据
+                                location.href = "{:url('@system/couponList')}" + queryVar + 'page=' + currPage;
+                            }
+                        }
+                    });
+                    form.on('submit(form)',function (data) {
+                    })
+                });
+            </script>
+        </div>
+    </div>
+</div>

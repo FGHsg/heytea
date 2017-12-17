@@ -1,0 +1,211 @@
+<style>
+    .main-part-article {
+        width: 100%;
+        overflow-x: scroll;
+    }
+
+    .action-part {
+        padding-left: 20px;
+    }
+
+    .action-part-top {
+        display: flex;
+        height: 50px;
+        align-items: center;
+        margin: 0;
+    }
+
+    .action-part-top input {
+        width: 150px;
+        margin-right: 20px;
+    }
+
+    .action-part form {
+        flex-direction: column;
+    }
+
+    .action-part form div {
+        flex-direction: row;
+    }
+
+    .action-part table {
+        margin: 0;
+    }
+</style>
+<div class="layui-body">
+    <div class="main-part-article"><!--页面主体-->
+        <div class="action-part">
+            <div class="action-part-top">
+                <form style="display: flex;flex-direction: row " class="layui-form" action="{:url('@system/addGoodsCoupon')}" method="post">
+                        <div class="layui-input-inline" style="width: 150px;">
+                            <select name="gcg_id" lay-filter="select" class="layui-select">
+                                <option>选择饮品</option>
+                                {volist name="goodsList" id="vog"}
+                                <option value="{$vog.g_id}">{$vog.g_name}</option>
+                                {/volist}
+                            </select>
+                        </div>
+
+                        <div id="choseSpc" class="layui-input-inline" style="width: 150px;">
+
+                        </div>
+                    <input type="text" name="gc_cost" required lay-verify="required" placeholder="输入兑换茶数" autocomplete="off" class="layui-input">
+                    <button class="layui-btn layui-btn-normal" type="submit">添加饮品</button>
+                </form>
+
+            </div>
+            <table class="layui-table" id="table" lay-filter="table">
+                <thead>
+                <tr>
+                    <th lay-data="{field: 'g_name', width: 250, align: 'center'}">饮品</th>
+                    <th lay-data="{field: 'gc_cost', width: 200, align: 'center'}">所需茶叶数量</th>
+                    <th lay-data="{field: 'g_content', width: 150, align: 'center'}">规格</th>
+                    <th lay-data="{field: 'create_time', width: 300, align: 'center'}">添加时间</th>
+                    <th lay-data="{field: 'action', width: 300, align: 'center'}">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {volist name="goodsCouponList" id="vo"}
+                <tr>
+                    <td>{$vo.g_name}</td>
+                    <td>{$vo.gc_cost}</td>
+                    <td>{$vo.g_content}</td>
+                    <td>{$vo.create_time}</td>
+                    <td>
+                        <button class="layui-btn layui-btn-normal layui-btn-mini" onclick="edit('{$vo.g_name}','{$vo.g_id}','{$vo.gc_cost}','{$vo.gc_id}')">修改</button>
+                        <a class="layui-btn layui-btn-danger layui-btn-mini" href="{:url('@system/deleteGoodsCoupon',['gc_id'=>$vo.gc_id])}">删除</a>
+                    </td>
+                </tr>
+                {/volist}
+                </tbody>
+            </table>
+            <div class="fenyeWrap">
+                <div id="fenye"></div>
+                <div>共 {$goodsCouponList->total()} 条</div>
+            </div>
+            <div id="layer-input" hidden style="margin-top:30px;width:300px;height:130px;">
+                <form lay-filter="layerform" id="layer-form" action="{:url('@system/updateGoodsCoupon')}" method="post">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">饮品</label>
+                        <div class="layui-input-block">
+                            <label class="layui-form-label" id="g_idlabel"></label>
+                            <input id="gc_id" name="gc_id" style="display: none">
+                            <input id="gcg_id" name="gcg_id" style="display: none">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">输入</label>
+                        <div class="layui-input-block">
+                            <input id="gc_cost" name="gc_cost" class="layui-input" placeholder="输入兑换茶数" style="width: 120px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">规格</label>
+                        <div id="editselectspc" class="layui-input-block">
+                        </div>
+                    </div>
+                    <div class="layui-input-block">
+                        <button type="submit" class="layui-btn layui-btn-normal">保存</button>
+                    </div>
+
+                </form>
+            </div>
+            <div id="selectpool">
+                {volist name="goodsList" id="vogl"}
+                <select id="{$vogl.g_id}" name="gcgs_specifications_id" style="display: none">
+                    <option>选择规格</option>
+                    {volist name="$vogl.goodsSpecifications" id="vogll"}
+                    <option value="{$vogll.gs_id}">{$vogll.g_content}</option>
+                    {/volist}
+                </select>
+                {/volist}
+            </div>
+
+            <div id="gselectpool" hidden>
+                {volist name="goodsList" id="vogl"}
+                <select id="g{$vogl.g_id}" name="gcgs_specifications_id" class="layui-select">
+                    <option>选择规格</option>
+                    {volist name="$vogl.goodsSpecifications" id="vogll"}
+                    <option value="{$vogll.gs_id}">{$vogll.g_content}</option>
+                    {/volist}
+                </select>
+                {/volist}
+            </div>
+            <script>
+                function edit(g_name,gcg_id,gc_cost,gc_id) {
+
+                    layui.use(['layer','form'],function () {
+                        var layer = layui.layer;
+                        var form = layui.form;
+                        document.getElementById("g"+gcg_id).setAttribute("style","")
+                        document.getElementById('editselectspc').appendChild(document.getElementById("g"+gcg_id));
+                        form.on('submit(layerform)',function (data) {
+                            document.getElementById('gselectpool').appendChild(document.getElementById('editselectspc').firstElementChild);
+                            document.getElementById('editselectspc').innerHTML = '';
+                            alert(data.form)
+                        })
+                        form.render();
+                        layer.open({
+                            type: 1,
+                            id: 'layer' + "l", //防止重复弹出
+                            title: '修改分类内容',
+                            content: $('#layer-input'),
+                            shade: 0, //不显示遮罩
+                            area: ['300px','300px'],
+                            success: function () {
+                                document.getElementById('g_idlabel').innerHTML = g_name;
+                                document.getElementById('gcg_id').value = gcg_id;
+                                document.getElementById('gc_cost').value = gc_cost;
+                                document.getElementById('gc_id').value = gc_id;
+                            },
+                            cancel: function () {
+                                document.getElementById('gselectpool').appendChild(document.getElementById('editselectspc').firstElementChild);
+                                document.getElementById('editselectspc').innerHTML = '';
+                                layer.closeAll();
+                            }
+                        });
+                    })
+                }
+
+                layui.use(['form','table', 'layer','laypage'], function () {
+                    var table = layui.table;
+                    var layer = layui.layer;
+                    var $ = layui.jquery;
+                    var laypage = layui.laypage;
+                    var form = layui.form;
+                    table.init('table',{
+                        width: 1206,
+                        even: true
+                    });
+                    var queryVar = getAllQueryVariableWithout(['page']);//不包含page的变量字符串
+                    laypage.render({
+                        elem: 'fenye',
+                        count: "{:config('paginate')['list_rows'] * $goodsCouponList->lastPage()}", //数据总数
+                        limit: "{:config('paginate')['list_rows']}",//每页显示的条数
+                        curr: "{$Request.get.page}", //当前页
+                        groups: 5, //连续显示分页数
+                        layout: ['prev', 'page', 'next', 'skip'],
+                        jump: function(obj, first){
+                            if(!first){
+                                var currPage = obj.curr;//得到了当前页，用于向服务端请求对应数据
+                                location.href = "{:url('@system/goodsCouponList')}" + queryVar + 'page=' + currPage;
+                            }
+                        }
+                    });
+                    form.on('select(select)',function (data) {
+                        if(document.getElementById('choseSpc').childElementCount > 1){
+                            document.getElementById('selectpool').appendChild(document.getElementById('choseSpc').firstElementChild);
+                            document.getElementById('choseSpc').innerHTML = '';
+                            document.getElementById('choseSpc').appendChild(document.getElementById(data.value));
+                            form.render();
+                        }else{
+                            document.getElementById('choseSpc').appendChild(document.getElementById(data.value));
+                            form.render();
+                        }
+
+                    })
+                });
+            </script>
+        </div>
+    </div>
+</div>

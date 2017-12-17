@@ -1,0 +1,76 @@
+{if condition="$Think.cookie.isExpand == 'off'"}
+<div class="layui-body" style="left:0px;">
+{else/}
+<div class="layui-body">
+{/if}
+	<blockquote class="layui-elem-quote" style="margin:15px 15px 0 15px;">角色是一定操作权限的集合，属于该角色的管理员拥有该角色的权限！</blockquote>
+	<div class="ctrlWrap">
+		<a href="{:url('@system/addRole')}" class="layui-btn layui-btn-normal layui-btn-small"><i class="layui-icon">&#xe608;</i> 添加角色</a>
+	</div>
+	<div class="layui-content">
+		<table class="layui-table" lay-filter="table">
+			<thead>
+				<tr>
+					<th lay-data="{field:'id', width:90, fixed:'left'}">ID</th>
+					<th lay-data="{field:'role_name', width:200}">角色名称</th>
+					<th lay-data="{field:'remark', width:375}">说明</th>
+					<th lay-data="{field:'create_time', width:200}">创建时间</th>
+					<th lay-data="{field:'status', width:90}">状态</th>
+					<th lay-data="{field:'handle', width:170, fixed:'right'}">操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				{volist name="roleList" id="vo"}
+				<tr>
+					<td>{$vo.id}</td>
+					<td>{$vo.role_name}</td>
+					<td>{$vo.remark}</td>
+					<td>{$vo.create_time}</td>
+					<td>
+						{switch name="$vo.status"}
+						{case value="1"}{$vo.status_data}{/case}
+						{case value="2"}<span style="color:red;">{$vo.status_data}</span>{/case}
+						{/switch}
+					</td>
+					<td>
+						<a href="{:url('@system/editRole',['page'=>$Request.get.page,'roleId'=>$vo.id])}" class="layui-btn layui-btn-normal layui-btn-mini">编辑</a>
+						<a href="{:url('@system/deleteRole',['roleId'=>$vo.id])}" class="layui-btn layui-btn-danger layui-btn-mini" onclick="return showConfirmTs(this,'确认删除 {$vo.role_name} ?')">删除</a>
+					</td>
+				</tr>
+				{/volist}
+			</tbody>
+		</table>
+		
+		<div class="fenyeWrap">
+			<div id="fenye"></div>
+			<div>共 {$roleList->total()} 条</div>
+		</div>
+	</div>
+</div>
+<script>
+	layui.use(['table','form','laypage'], function(){
+		var table = layui.table;
+		//转换静态表格
+		table.init('table', {
+
+		});
+		
+		//分页
+		var laypage = layui.laypage;
+		var queryVar = getAllQueryVariableWithout(['page']);//不包含page的变量字符串
+		laypage.render({
+			elem: 'fenye',
+			count: "{:config('paginate')['list_rows'] * $roleList->lastPage()}", //数据总数
+			limit: "{:config('paginate')['list_rows']}",//每页显示的条数
+		    curr: "{$Request.get.page}", //当前页
+		    groups: 5, //连续显示分页数
+		    layout: ['prev', 'page', 'next', 'skip'],
+		    jump: function(obj, first){
+		        if(!first){
+			    	var currPage = obj.curr;//得到了当前页，用于向服务端请求对应数据
+			    	location.href = "{:url('@system/roleList')}" + queryVar + 'page=' + currPage;
+		        }
+		    }
+		});
+	});
+</script>

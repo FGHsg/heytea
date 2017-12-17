@@ -1,0 +1,122 @@
+{if condition="$Think.cookie.isExpand == 'off'"}
+<div class="layui-body" style="left:0px;">
+{else/}
+<div class="layui-body">
+{/if}
+	<div class="ctrlWrap">
+		<a href="{:url('@system/addAdmin')}" class="layui-btn layui-btn-normal layui-btn-small"><i class="layui-icon">&#xe608;</i> 添加管理员</a>
+	</div>
+	<div class="layui-content">
+		<table class="layui-table" lay-filter="table">
+			<thead>
+				<tr>
+					<th lay-data="{field:'id', width:90, fixed:'left'}">ID</th>
+					<th lay-data="{field:'admin_account', width:160}">帐号</th>
+					<th lay-data="{field:'admin_fullname', width:200}">管理员</th>
+					<th lay-data="{field:'adminRoleList', width:160}">角色</th>
+					<th lay-data="{field:'admin_phone', width:200}">手机号码</th>
+					<th lay-data="{field:'admin_head', width:100}">头像</th>
+					<th lay-data="{field:'status', width:100}">状态</th>
+					<th lay-data="{field:'handle', width:120, fixed:'right'}">操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				{volist name="adminList" id="vo"}
+					{notin name="$vo.admin_account" value="$systemAdmin"}
+						
+						{notin name="$vo.admin_account" value="$passAdmins"}
+							<tr>
+								<td>{$vo.id}</td>
+								<td>{$vo.admin_account}</td>
+								<td>{$vo.admin_fullname}</td>
+								<td>
+									{volist name="adminRoleList" id="ar"}
+									{if condition="$vo.id == $ar.admin_id"}
+										{$ar.role_name}
+									{/if}
+									{/volist}
+								</td>
+								<td>{$vo.admin_phone}</td>
+								<td>{notempty name="$vo.admin_head"}<img src="{$vo.admin_head}" alt="" style="height:30px;" />{/notempty}</td>
+								<td>
+									{if condition="$vo.status == 1"}
+									{$vo.status_data}
+									{else/}
+									<span style="color:red;">{$vo.status_data}</span>
+									{/if}
+								</td>
+								<td>
+									<a href="{:url('@system/editAdmin',['adminId'=>$vo.id])}" class="layui-btn layui-btn-normal layui-btn-mini">编辑</a>
+									{notin name="$vo.admin_account" value="$passAdmins"}
+									<a href="{:url('@system/deleteAdmin',['adminId'=>$vo.id])}" class="layui-btn layui-btn-danger layui-btn-mini" onclick="return showConfirmTs(this,'确认删除 {$vo.admin_account} ?')">删除</a>
+									{/notin}
+								</td>
+							</tr>
+						{else/}
+							<tr>
+								<td>{$vo.id}</td>
+								<td>{$vo.admin_account}</td>
+								<td>{$vo.admin_fullname}</td>
+								<td>超级管理员</td>
+								<td>{$vo.admin_phone}</td>
+								<td>{notempty name="$vo.admin_head"}<img src="{$vo.admin_head}" alt="" style="height:30px;" />{/notempty}</td>
+								<td>正常</td>
+								<td>
+									<a href="{:url('@system/editAdmin',['adminId'=>$vo.id])}" class="layui-btn layui-btn-normal layui-btn-mini">编辑</a>
+								</td>
+							</tr>
+						{/notin}
+						
+					{else/}
+						{if condition="$Think.session.adminAccount == $vo.admin_account"}
+							<tr>
+								<td>{$vo.id}</td>
+								<td>{$vo.admin_account}</td>
+								<td>{$vo.admin_fullname}</td>
+								<td>开发者</td>
+								<td>{$vo.admin_phone}</td>
+								<td>{notempty name="$vo.admin_head"}<img src="{$vo.admin_head}" alt="" style="height:30px;" />{/notempty}</td>
+								<td>正常</td>
+								<td>
+									<a href="{:url('@system/editAdmin',['adminId'=>$vo.id])}" class="layui-btn layui-btn-normal layui-btn-mini">编辑</a>
+								</td>
+							</tr>
+						{/if}
+					{/notin}
+				{/volist}
+			</tbody>
+		</table>
+		
+		<div class="fenyeWrap">
+			<div id="fenye"></div>
+			<div>共 {$adminList->total()} 条记录</div>
+		</div>
+	</div>
+</div>
+<script>
+	layui.use(['table','form','laypage'], function(){
+		var table = layui.table;
+		//转换静态表格
+		table.init('table', {
+
+		});
+
+		//分页
+		var laypage = layui.laypage;
+		var queryVar = getAllQueryVariableWithout(['page']);//不包含page的变量字符串
+		laypage.render({
+			elem: 'fenye',
+			count: "{:config('paginate')['list_rows'] * $adminList->lastPage()}", //数据总数
+			limit: "{:config('paginate')['list_rows']}",//每页显示的条数
+		    curr: "{$Request.get.page}", //当前页
+		    groups: 5, //连续显示分页数
+		    layout: ['prev', 'page', 'next', 'skip'],
+		    jump: function(obj, first){
+		        if(!first){
+			    	var currPage = obj.curr;//得到了当前页，用于向服务端请求对应数据
+			    	location.href = "{:url('@system/adminList')}" + queryVar + 'page=' + currPage;
+		        }
+		    }
+		});
+	});
+</script>

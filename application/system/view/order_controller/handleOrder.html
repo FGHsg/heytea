@@ -1,0 +1,316 @@
+<style>
+    .main-part-article{
+        width: 100%;
+        overflow-x: scroll;
+    }
+    .main-part-article-header{
+        height: 40px;
+        padding-left: 20px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        background-color: #F0F0F0;
+        border-bottom: 1px solid;
+        border-color: #c2c2c2;
+    }
+    .action-part{
+        padding-left: 20px;
+    }
+    .action-part-top{
+        display: flex;
+        height: 50px;
+        align-items: center;
+        margin: 0;
+    }
+    .action-part-top input{
+        width: 150px;
+        margin-right: 20px;
+    }
+    .action-part form{
+        flex-direction: column;
+    }
+    .action-part form div{
+        flex-direction: row;
+    }
+    .action-part table{
+        margin: 0;
+    }
+    .order-item{
+        width: 1000px;
+        margin: 0;
+        box-shadow: 1px 2px #c2c2c2;
+        margin-bottom: 20px;
+    }
+    .order-item-header{
+        height: 50px;
+        display: flex;
+        align-items: center;
+        background-color: #F0F0F0;
+        font-size: 13px;
+    }
+    .order-item-header div{
+        display: flex;
+        flex-direction: row;
+        width: 42.5%;
+        height: auto;
+    }
+    .order-item-header-middle{
+        width: 15%;
+    }
+    .order-number{
+        margin-left: 10px;
+    }
+    .order-time{
+
+    }
+    .order-status{
+        border-left: 1px solid;
+        border-color: #c2c2c2;
+        padding-left: 5px;
+        display: flex;
+        align-items: center;
+    }
+    .order-way{
+        margin-left: auto;
+    }
+    .order-code{
+        width: auto;
+        align-items: center;
+        margin-right: 40px;
+    }
+    .order-sender{
+        display: flex;
+    }
+    .order-user div{
+
+        margin-top: 10px;
+        margin-right: 10px;
+    }
+    .order-user{
+        padding-left: 10px;
+    }
+
+    .commodity{
+        padding-left: 10px;
+    }
+    .commodity-message{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        height: 40px;
+    }
+    .commodity-message div{
+        width: 25%;
+    }
+
+    .order-all{
+        position: absolute;
+        right: 70px;
+        top: 150px;
+        height: 120px;
+        width: 180px;
+        border: 1px solid;
+        border-color: #F0F0F0;
+        border-radius: 2px;
+        box-shadow: 2px 2px #F0F0F0;
+        background-color: whitesmoke;
+    }
+    .order-all-header{
+        display: flex;
+        background-color: #F0F0F0;
+        height: 30px;
+        align-items: center;
+        padding-left: 5px;
+    }
+    .recieve-amount{
+        margin-left: 10px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    .sell-mount{
+        margin-left: 10px;
+        margin-top: 5px;
+    }
+</style>
+<div class="layui-body">
+    <div class="main-part-article"><!--页面主体-->
+        <div class="action-part">
+            <div class="action-part-top">
+                    <form class="layui-form" action="{:url('@system/handleOrder')}" method="post" style="display: flex;flex-direction: row">
+                        <input type="text" id="chosetime" name="create_time"  placeholder="选择时间范围" class="layui-input" style="width: auto;">
+                        <input onblur="submit()" type="text" name="o_number"  placeholder="订单号" class="layui-input" style="width: auto;">
+                        <input onblur="submit()" type="text" name="o_receiver"  placeholder="用户名" class="layui-input" style="width: auto;">
+                        <div class="layui-input-inline" style="width: 150px;">
+                            <select name="o_class" lay-filter="select" lay-verify="">
+                                <option value="">订单类型</option>
+                                <option value="1">到店取茶</option>
+                                <option value="0">线上订单</option>
+                            </select>
+                        </div>
+                        <div style="margin-left:10px;display: flex;align-items: center">
+                            <button type="button" onclick="clearForm()" class="layui-btn layui-btn-normal layui-btn-small">重置</button>
+                        </div>
+                    </form>
+            </div>
+            <div class="order-list">
+                {volist name="order" id="voo"}
+                <div class="order-item">
+                    <div class="order-item-header">
+                        <div>
+                            <div class="order-number">#{$voo.o_id}</div>
+                            <div class="order-time">送达时间：{$voo.o_complete_time}</div>
+                            <div class="order-status">{$voo.o_status}</div>
+                        </div>
+                        <div class="order-item-header-middle"><div class="order-way">{if $voo.o_class==0}线上订单{else/}到店取茶{/if}</div></div>
+                        <div>
+                            <div class="order-code">订单号:{$voo.o_number}</div>
+                            <div>
+                                <button class="layui-btn layui-btn-small layui-btn-normal"  onclick="cancelOrder('{$voo.o_id}')">取消订单</button>
+                                <a class="layui-btn layui-btn-small layui-btn-normal" href="{:url('@system/handleOrderOperation',['o_id'=>$voo.o_id])}">接单</a>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="order-user">
+                        <div class="order-sender">
+                            <div>{$voo.o_receiver}</div>
+                            <div class="layui-word-aux">#下单{$voo.o_sum}次</div>
+                        </div>
+                        <div>{$voo.o_phone}</div>
+                        <div>{$voo.o_address}</div>
+                    </div>
+                    <hr>
+                    <div class="commodity">
+                        <div>
+                            商品信息
+                        </div>
+                        {volist name="$voo.o_goods" id="voog"}
+                        <div class="commodity-message">
+                            <div>{$voog:g_name}</div>
+                            <div>${$voog:g_price}</div>
+                            <div>×{$voog:number}</div>
+                            <div></div>
+                            <div>${$voog:g_price}</div>
+                        </div>
+                        {/volist}
+                    </div>
+                    <hr>
+                    <div class="commodity">
+                        <div>
+                            附加费
+                        </div>
+                        {if $voo.o_lunchbox_number != 0}
+                        <div class="commodity-message">
+                            <div>餐盒</div>
+                            <div>${$voo.o_lunchbox}</div>
+                            <div>×{$voo.o_lunchbox_number}</div>
+                            <div></div>
+                            <div>${$voo.o_lunchbox * $voo.o_lunchbox_number}</div>
+                        </div>
+                        {/if}
+                        {if $voo.o_distribution != 0}
+                        <div class="commodity-message">
+                            <div>配送</div>
+                            <div>$1.00</div>
+                            <div>×1</div>
+                            <div></div>
+                            <div>${$voo.o_distribution}</div>
+                        </div>
+                        {/if}
+                    </div>
+                    <hr>
+                    <div class="commodity">
+                        <div>
+                            备注
+                        </div>
+                        <div>
+                            {$voo.o_remarks}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="commodity " style="display:flex;flex-direction: row;height: 30px;">
+                        <div style="width: 80%;">
+                            本单收入
+                        </div>
+                        <div class="all-in">
+                            ${$voo.o_sum}
+                        </div>
+                    </div>
+                </div>
+                {/volist}
+
+            </div>
+            <div class="order-all" >
+                <div class="order-all-header">
+                    今日订单概况
+                </div>
+                <div>
+                    <div class="recieve-amount">
+                        已接订单： {$count}笔
+                    </div>
+                    <div class="sell-mount">
+                        今日营业额：{$sum}元
+                    </div>
+                </div>
+            </div>
+            <script>
+                window.onload = function () {
+                    layui.use('form',function () {
+                        var form = layui.form;
+                        form.on('select(select)',function (data) {
+                            document.getElementsByClassName('layui-form')[0].submit();
+                        })
+                        document.getElementsByName('create_time')[0].value = "{$create_time}";
+                        document.getElementsByName('o_number')[0].value = "{$o_number}";
+                        document.getElementsByName('o_receiver')[0].value = "{$o_receiver}";
+                        document.getElementsByName('o_class')[0].value = "{$o_class}";
+                        form.render();
+                    })
+                }
+                function clearForm() {
+                    layui.use('form',function () {
+                        var form = layui.form;
+                        document.getElementsByName('create_time')[0].value = "";
+                        document.getElementsByName('o_number')[0].value = "";
+                        document.getElementsByName('o_receiver')[0].value = "";
+                        document.getElementsByName('o_class')[0].value = "";
+                        form.render();
+                    })
+                }
+                function cancelOrder(o_id) {
+                    layui.use('layer',function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            type: 1,
+                            title: '确认取消该订单',
+                            btn: ['确认','取消'],
+                            yes: function () {
+                                location.href = "{:url('@system/cancelOrderOperation')}" + "?o_id=" + o_id;
+                            },
+                            btn2: function () {
+                                layer.closeAll();
+                            }
+                        })
+                    })
+                }
+                layui.use(['layer', 'form', 'laydate'], function () {
+                    var layer = layui.layer;
+                    var form = layui.form;
+                    var laydate = layui.laydate;
+                    var $ = layui.jquery;
+                    laydate.render({
+                        elem: '#chosetime',
+                        range: '-',
+                        done: function (value, date, endDate) {
+                            document.getElementsByName('create_time')[0].value = value;
+                            document.getElementsByClassName('layui-form')[0].submit();
+                        }
+                    })
+                });
+            </script>
+        </div>
+    </div>
+</div>
+<script>
+
+</script>

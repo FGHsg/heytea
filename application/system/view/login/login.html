@@ -1,0 +1,47 @@
+{__NOLAYOUT__}
+<!DOCTYPE html>
+<html>
+<head>
+{include file="inc/head" title="$settingInfo.website_title" /}
+<link rel="stylesheet" href="__CSS__/system/login.css" />
+</head>
+<body>
+	<div class="loginWrap">
+		<h2>{$settingInfo.website_title} 后台管理系统</h2>
+		<form class="layui-form" action="{:url('@system/login')}" method="post">
+			<div class="layui-form-item">
+				<label class="layui-form-label">帐号</label>
+				<div class="layui-input-block">
+					<input type="text" name="admin_account" value="{$data.admin_account}" autocomplete="off" placeholder="管理员帐号" class="layui-input" required="required">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">密码</label>
+				<div class="layui-input-block">
+					<input type="password" name="admin_password" value="{$data.admin_password}" placeholder="管理员密码" autocomplete="off" class="layui-input" required="required">
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">验证码</label>
+				<div class="layui-input-inline">
+					<input type="text" name="captcha" value="{$data.captcha}" autocomplete="off" placeholder="验证码" class="layui-input" required="required">
+				</div>
+				<div class="layui-word-aux">
+					<img src="{:captcha_src()}" alt="" onclick="this.src='{:captcha_src()}?r=Math.random()'" />
+				</div>
+			</div>			
+			{notempty name="ts"}
+			<div class="layui-form-item" style="color:red;margin-left:110px;">{$ts}</div>
+			{/notempty}
+			{notempty name="$Think.session.ts"}
+			<div class="layui-form-item" style="color:red;margin-left:110px;">{$Think.session.ts}</div>
+			{/notempty}
+			<div class="layui-form-item submit-item">
+				<div class="layui-input-block">
+					<button class="layui-btn" type="submit">立即登录</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</body>
+</html>

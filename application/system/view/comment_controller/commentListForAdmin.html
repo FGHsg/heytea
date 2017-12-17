@@ -1,0 +1,146 @@
+<style>
+    .main-part-article{
+        width: 100%;
+        overflow-x: scroll;
+    }
+    .action-part{
+        padding-left: 20px;
+    }
+    .action-part-top{
+        display: flex;
+        height: 50px;
+        align-items: center;
+        margin: 0;
+    }
+    .action-part-top input{
+        width: 150px;
+        margin-right: 20px;
+    }
+    .action-part form{
+        flex-direction: column;
+    }
+    .action-part form div{
+        flex-direction: row;
+    }
+    .action-part table{
+        margin: 0;
+    }
+</style>
+<div class="layui-body">
+    <div class="main-part-article"><!--页面主体-->
+        <div class="action-part">
+            <form class="layui-form" lay-filter="form" action="{:url('@system/commentListForAdmin')}" method="POST">
+                <div class="action-part-top layui-form-item">
+                    <input value="{$create_time}"  type="text" name="create_time" id="chosetime"  placeholder="选择时间范围" class="layui-input" style="width: auto">
+                    <input onblur="submit()" value="{$u_nickname}" type="text" name="u_nickname"placeholder="用户" autocomplete="off" class="layui-input">
+                    <input onblur="submit()" value="{$cg_content}" type="text" name="cg_content"placeholder="饮品" autocomplete="off" class="layui-input">
+                    <div class="layui-input-inline" style="width: 150px;">
+                        <select lay-filter="select" name="c_status" lay-verify="">
+                            <option value="">选择状态</option>
+                            <option value="1">显示</option>
+                            <option value="0">隐藏</option>
+                        </select>
+                    </div>
+                    <button type="button" class="layui-btn layui-btn-normal" onclick="clearForm()">重置</button>
+                </div>
+            </form>
+
+            <table class="layui-table" id="table" lay-filter="table">
+                <thead>
+                    <tr>
+                        <th lay-data="{field: 'u_nickname', width:120, align: 'center'}">用户</th>
+                        <th lay-data="{field: 'g_name', width:100, align: 'center'}">饮品</th>
+                        <th lay-data="{field: 'c_score', width:120, align: 'center'}">评分</th>
+                        <th lay-data="{field: 'c_img', width:260, align: 'center'}">图片</th>
+                        <th lay-data="{field: 'c_content', width:210, align: 'center'}">评论</th>
+                        <th lay-data="{field: 'create_time', width:160, align: 'center'}">评论时间</th>
+                        <th lay-data="{field: 'action', width:130, align: 'center'}">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {volist name="commentList" id="vo"}
+                    <tr>
+                        <td>{$vo.u_nickname}</td>
+                        <td>{$vo.cg_content}</td>
+                        <td>{$vo.c_score}</td>
+                        <td>
+                            {volist name="$vo.c_img" id="voimg"}
+                            <img src="{$voimg}" width="40">
+                            {/volist}
+                            </td>
+                        <td>{$vo.c_content}</td>
+                        <td>{$vo.create_time}</td>
+                        <td>
+                            {if $vo.c_status==0}
+                            <a class="layui-btn layui-btn-normal layui-btn-mini" id="isshow" href="{:url('@system/updateCommentStatus',['page'=>$Request.get.page,'c_id'=>$vo.c_id,'label'=>'1'])}">显示</a>
+                            {else/}
+                            <a class="layui-btn layui-bg-black layui-btn-mini" id="ishide" href="{:url('@system/updateCommentStatus',['page'=>$Request.get.page,'c_id'=>$vo.c_id,'label'=>'0'])}">隐藏</a>
+                            {/if}
+                        </td>
+                    </tr>
+                    {/volist}
+                </tbody>
+            </table>
+            <div class="fenyeWrap">
+                <div id="fenye"></div>
+                <div>共 {$commentList->total()} 条</div>
+            </div>
+            <script>
+                window.onload = function () {
+                    layui.use('form',function () {
+                        var form = layui.form;
+                        document.getElementsByName('c_status')[0].value = "{$c_status}"
+                        form.render();
+                    })
+                }
+                function clearForm() {
+                    layui.use('form',function () {
+                        var form = layui.form;
+                        document.getElementsByName('create_time')[0].value = "";
+                        document.getElementsByName('u_nickname')[0].value = "";
+                        document.getElementsByName('c_status')[0].value = "";
+                        document.getElementsByName('cg_content')[0].value = "";
+                        form.render();
+                        document.getElementsByClassName('layui-form')[0].submit();
+                    })
+                }
+                layui.use(['table', 'layer', 'form', 'laydate','laypage'], function () {
+                    var table = layui.table;
+                    var layer = layui.layer;
+                    var form = layui.form;
+                    var laydate = layui.laydate;
+                    var laypage = layui.laypage;
+                    var $ = layui.jquery;
+                    form.on('select(select)',function (data) {
+                        document.getElementsByClassName('layui-form')[0].submit();
+                    })
+                    laydate.render({
+                        elem: '#chosetime',
+                        range: '-',
+                        done: function (value, date, endDate) {
+                            document.getElementsByName('create_time')[0].value = value;
+                            document.getElementsByClassName('layui-form')[0].submit();
+                        }
+                    })
+                    var queryVar = getAllQueryVariableWithout(['page']);//不包含page的变量字符串
+                    laypage.render({
+                        elem: 'fenye',
+                        count: "{:config('paginate')['list_rows'] * $commentList->lastPage()}", //数据总数
+                        limit: "{:config('paginate')['list_rows']}",//每页显示的条数
+                        curr: "{$Request.get.page}", //当前页
+                        groups: 5, //连续显示分页数
+                        layout: ['prev', 'page', 'next', 'skip'],
+                        jump: function(obj, first){
+                            if(!first){
+                                var currPage = obj.curr;//得到了当前页，用于向服务端请求对应数据
+                                location.href = "{:url('@system/commentListForAdmin')}" + queryVar + 'page=' + currPage;
+                            }
+                        }
+                    });
+                    form.on('submit(form)',function (data) {
+                    })
+                });
+            </script>
+        </div>
+    </div>
+</div>

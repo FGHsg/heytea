@@ -1,0 +1,138 @@
+<style>
+    .main-part-article{
+        width: 100%;
+        overflow-x: scroll;
+    }
+    .action-part{
+        padding-left: 20px;
+    }
+    .action-part-top{
+        display: flex;
+        height: 50px;
+        align-items: center;
+        margin: 0;
+    }
+    .action-part-top input{
+        width: 150px;
+        margin-right: 20px;
+    }
+    .action-part form{
+        flex-direction: column;
+    }
+    .action-part form div{
+        flex-direction: row;
+    }
+    .action-part table{
+        margin: 0;
+    }
+    .fenyeWrap{
+        width: 700px;
+    }
+</style>
+<div class="layui-body">
+    <div class="main-part-article"><!--页面主体-->
+        <div class="action-part">
+            <form class="layui-form" lay-filter="form" action="{:url('@system/userList')}" method="POST">
+                <div class="action-part-top layui-form-item">
+                    <div class="layui-input-inline" style="width: 150px;">
+                        <select lay-filter="select" name="g_id" lay-verify="">
+                            <option value="">选择等级</option>
+                            {volist name="grade" id="vog"}
+                            <option value="{$vog.g_id}">{$vog.g_name}</option>
+                            {/volist}
+                        </select>
+                    </div>
+                    <input onblur="submit()" type="text" name="m_phone"placeholder="搜索手机号" autocomplete="off" class="layui-input">
+                    <input onblur="submit()" type="text" name="u_nickname"placeholder="搜索用户名" autocomplete="off" class="layui-input">
+                    <button onclick="clearForm()" class="layui-btn layui-btn-normal" type="button">重置</button>
+                </div>
+            </form>
+
+            <table class="layui-table" id="table" lay-filter="table">
+                <thead>
+                <tr>
+                    <th lay-data="{field: 'u_nickname', width:120, align: 'center'}">用户名</th>
+                    <th lay-data="{field: 'm_phone', width:180, align: 'center'}">手机号码</th>
+                    <th lay-data="{field: 'm_tea_point', width:120, align: 'center'}">树叶</th>
+                    <th lay-data="{field: 'm_point', width:200, align: 'center'}">积分</th>
+                    <th lay-data="{field: 'g_name', width:200, align: 'center'}">等级</th>
+                    <th lay-data="{field: 'm_vipcode', width:300, align: 'center'}">会员码</th>
+                </tr>
+                </thead>
+                <tbody>
+                {volist name="member" id="vo"}
+                <tr>
+                    <td>{$vo.u_nickname}</td>
+                    <td>{$vo.m_phone}</td>
+                    <td>{$vo.m_tea_point}</td>
+                    <td>{$vo.m_point}</td>
+                    <td>{$vo.g_name}</td>
+                    <td>{$vo.m_vipcode}</td>
+                </tr>
+                {/volist}
+                </tbody>
+            </table>
+            <div class="fenyeWrap">
+                <div id="fenye"></div>
+                <div>共 {$member->total()} 条</div>
+            </div>
+            <script>
+                window.onload = function () {
+                    layui.use('form',function () {
+                        var form = layui.form;
+                        form.on('select(select)',function (data) {
+                            document.getElementsByClassName('layui-form')[0].submit();
+                        })
+                        document.getElementsByName('g_id')[0].value = "{$g_id}";
+                        document.getElementsByName('m_phone')[0].value = "{$m_phone}";
+                        document.getElementsByName('u_nickname')[0].value = "{$u_nickname}";
+                        form.render();
+                    })
+                }
+                function clearForm() {
+                    layui.use('form',function () {
+                        var form = layui.form;
+                        document.getElementsByName('g_id')[0].value = "";
+                        document.getElementsByName('m_phone')[0].value = "";
+                        document.getElementsByName('u_nickname')[0].value = "";
+                        form.render();
+                    })
+                }
+                layui.use(['table', 'layer', 'form', 'laydate','laypage'], function () {
+                    var table = layui.table;
+                    var layer = layui.layer;
+                    var form = layui.form;
+                    var laydate = layui.laydate;
+                    var laypage = layui.laypage;
+                    var $ = layui.jquery;
+                    table.init('table',{
+                        width: 1127,
+                        even: true,
+                    })
+                    laydate.render({
+                        elem: '#chosetime',
+                        range: '-',
+                    })
+                    var queryVar = getAllQueryVariableWithout(['page']);//不包含page的变量字符串
+                    laypage.render({
+                        elem: 'fenye',
+                        count: "{:config('paginate')['list_rows'] * $member->lastPage()}", //数据总数
+                        limit: "{:config('paginate')['list_rows']}",//每页显示的条数
+                        curr: "{$Request.get.page}", //当前页
+                        groups: 5, //连续显示分页数
+                        layout: ['prev', 'page', 'next', 'skip'],
+                        jump: function(obj, first){
+                            if(!first){
+                                var currPage = obj.curr;//得到了当前页，用于向服务端请求对应数据
+                                location.href = "{:url('@system/userList')}" + queryVar + 'page=' + currPage;
+                            }
+                        }
+                    });
+                    form.on('submit(form)',function (data) {
+
+                    })
+                });
+            </script>
+        </div>
+    </div>
+</div>

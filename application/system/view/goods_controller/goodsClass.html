@@ -1,0 +1,144 @@
+<style>
+    .main-part-article{
+        width: 100%;
+        overflow-x: scroll;
+    }
+
+    .action-part {
+        padding-left: 20px;
+    }
+
+    .action-part-top {
+        display: flex;
+        height: 50px;
+        align-items: center;
+        margin: 0;
+    }
+
+    .action-part-top input {
+        width: 150px;
+        margin-right: 20px;
+    }
+
+    .action-part form {
+        flex-direction: column;
+    }
+
+    .action-part form div {
+        flex-direction: row;
+    }
+
+    .action-part table {
+        margin: 0;
+    }
+</style>
+<div class="layui-body">
+    <div class="main-part-article"><!--页面主体-->
+        <div class="action-part">
+            <div class="action-part-top">
+                <form style="display: flex;flex-direction: row" action="{:url('@system/addGoodsClass')}" method="post">
+                    <input type="text" name="gc_name" required lay-verify="required" placeholder="输入分类名称"
+                           autocomplete="off" class="layui-input">
+                    <button class="layui-btn layui-btn-normal" type="submit">添加分类</button>
+                </form>
+
+            </div>
+            <table class="layui-table" id="table" lay-filter="table">
+                <thead>
+                <tr>
+                    <th lay-data="{field: 'gc_name', width: 300, align: 'center'}">分类</th>
+                    <th lay-data="{field: 'create_time', width: 500, align: 'center'}">创建时间</th>
+                    <th lay-data="{field: 'action', width: 300, align: 'center'}">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {volist name="goods_class" id="vo"}
+                <tr>
+                    <td>{$vo.gc_name}</td>
+                    <td>{$vo.create_time}</td>
+                    <td>
+                        <button class="layui-btn layui-btn-normal layui-btn-mini" onclick="edit('{$vo.gc_id}','{$vo.gc_name}')">修改</button>
+                        <button class="layui-btn layui-btn-danger layui-btn-mini" onclick="deleteClass('{$vo.gc_id}')">删除</button>
+                    </td>
+                </tr>
+                {/volist}
+                </tbody>
+            </table>
+            <div class="fenyeWrap">
+                <div id="fenye"></div>
+                <div>共 {$goods_class->total()} 条</div>
+            </div>
+            <div id="changeinput" hidden>
+                <input style="margin-top: 20px;margin-left: 50px;margin-right:50px;width: 180px;height: 30px;">
+            </div>
+            <script>
+                function deleteClass(gc_id) {
+                    layui.use('layer',function () {
+                        var layer= layui.layer;
+                        layer.open({
+                            type: 1,
+                            title: '确认删除',
+                            btn: ['确认','取消'],
+                            yes: function () {
+                                location.href = "{:url('@system/deleteGoodsClass')}" + "?gc_id=" + gc_id;
+                            },
+                            btn2: function () {
+                                layer.closeAll();
+                            }
+                        })
+                    })
+                }
+                function edit(gc_id,gc_name) {
+                    document.getElementById('changeinput').firstElementChild.value = gc_name
+                    layui.use('layer',function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            type: 1,
+                            id: 'layer' + "l", //防止重复弹出
+                            title: '修改分类内容',
+                            content: $('#changeinput'),
+                            btn: '修改',
+                            btnAlign: 'c', //按钮居中
+                            shade: 0, //不显示遮罩
+                            yes: function () {
+                                $.ajax({
+                                    url: "{:url('@system/editGoodsClass')}",
+                                    data: {"gc_id": gc_id,"gc_name_next": document.getElementById('changeinput').firstElementChild.value},
+                                    success: function (res) {
+                                        layer.closeAll();
+                                        location.href("{:url('@system/goodsClass')}")
+                                    }
+                                })
+                            }
+                        });
+                    })
+                }
+
+                layui.use(['table', 'layer','laypage'], function () {
+                    var table = layui.table;
+                    var layer = layui.layer;
+                    var $ = layui.jquery;
+                    var laypage = layui.laypage;
+                    table.init('table',{
+                        width: 1104
+                    });
+                    var queryVar = getAllQueryVariableWithout(['page']);//不包含page的变量字符串
+                    laypage.render({
+                        elem: 'fenye',
+                        count: "{:config('paginate')['list_rows'] * $goods_class->lastPage()}", //数据总数
+                        limit: "{:config('paginate')['list_rows']}",//每页显示的条数
+                        curr: "{$Request.get.page}", //当前页
+                        groups: 5, //连续显示分页数
+                        layout: ['prev', 'page', 'next', 'skip'],
+                        jump: function(obj, first){
+                            if(!first){
+                                var currPage = obj.curr;//得到了当前页，用于向服务端请求对应数据
+                                location.href = "{:url('@system/goodsClass')}" + queryVar + 'page=' + currPage;
+                            }
+                        }
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>

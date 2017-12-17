@@ -1,0 +1,158 @@
+<style>
+    .main-part-article {
+        width: 100%;
+        overflow-x: scroll;
+    }
+
+    .action-part {
+        padding-left: 20px;
+    }
+
+    .action-part-top {
+        display: flex;
+        height: 50px;
+        align-items: center;
+        margin: 0;
+    }
+
+    .action-part-top input {
+        width: 150px;
+        margin-right: 20px;
+    }
+
+    .action-part form {
+        flex-direction: column;
+    }
+
+    .action-part form div {
+        flex-direction: row;
+    }
+
+    .action-part table {
+        margin: 0;
+    }
+</style>
+<div class="layui-body">
+    <div class="main-part-article"><!--页面主体-->
+        <div class="action-part">
+            <div class="action-part-top">
+                <form style="display: flex;flex-direction: row" action="{:url('@system/addGrade')}" method="post">
+                    <input type="text" name="g_name" required lay-verify="required" placeholder="输入等级名称"
+                           autocomplete="off" class="layui-input">
+                    <input type="text" name="g_point" required lay-verify="required" placeholder="输入需要积分"
+                           autocomplete="off" class="layui-input">
+                    <button lay-submit class="layui-btn layui-btn-normal" type="submit">添加等级</button>
+                </form>
+
+            </div>
+            <table class="layui-table" id="table" lay-filter="table">
+                <thead>
+                <tr>
+                    <th lay-data="{field: 'g_name', width: 200, align: 'center'}">等级</th>
+                    <th lay-data="{field: 'g_point', width: 200, align: 'center'}">需要积分</th>
+                    <th lay-data="{field: 'create_time', width: 300, align: 'center'}">创建时间</th>
+                    <th lay-data="{field: 'action', width: 300, align: 'center'}">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {volist name="grade" id="vo"}
+                <tr>
+                    <td>{$vo.g_name}</td>
+                    <td>{$vo.g_point}</td>
+                    <td>{$vo.create_time}</td>
+                    <td>
+                        <button class="layui-btn layui-btn-normal layui-btn-mini" onclick="edit('{$vo.g_id}','{$vo.g_name}','{$vo.g_point}')">修改
+                        </button>
+                        <button class="layui-btn layui-btn-danger layui-btn-mini" onclick="deleteGrade('{$vo.g_id}')">删除</button>
+                    </td>
+                </tr>
+                {/volist}
+                </tbody>
+            </table>
+            <div id="layer" style="display: none">
+                <form style="margin-top: 20px;" class="layui-form" action="{:url('@system/editGrade')}" method="post">
+                    <input name="g_id" style="display: none">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">等级名称</label>
+                        <div class="layui-input-block">
+                            <input name="g_name" class="layui-input" placeholder="输入等级名称" style="width: 150px">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">需要积分</label>
+                        <div class="layui-input-block">
+                            <input name="g_point" class="layui-input" placeholder="输入需要积分" style="width: 150px">
+                        </div>
+                    </div>
+                    <div class="layui-input-block">
+                        <button class="layui-btn layui-btn-normal layui-btn-small">修改</button>
+                    </div>
+                </form>
+
+            </div>
+            <div class="fenyeWrap">
+                <div id="fenye"></div>
+                <div>共 {$grade->total()} 条</div>
+            </div>
+            <script>
+                function edit(g_id,g_name,g_point) {
+                    document.getElementsByName('g_name')[1].value = g_name;
+                    document.getElementsByName('g_id')[0].value = g_id;
+                    document.getElementsByName('g_point')[1].value = g_point;
+                    layui.use('layer', function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            type: 1,
+                            id: 'layer' + "l", //防止重复弹出
+                            title: '修改',
+                            content: $('#layer'),
+                            shade: 0,
+                            area: ['300px','220px']
+                        });
+                    })
+                }
+                function deleteGrade(g_id) {
+                    layui.use('layer',function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            type: 1,
+                            id: 'layer' + "2",
+                            title: '确认删除',
+                            btn: ['确认','取消'],
+                            yes: function () {
+                                location.href = "{:url('@system/deleteGrade')}" + "?g_id=" +g_id;
+                            },
+                            btn2: function () {
+                                layer.closeAll();
+                            }
+                        })
+                    })
+                }
+                layui.use(['table', 'layer', 'laypage'], function () {
+                    var table = layui.table;
+                    var layer = layui.layer;
+                    var $ = layui.jquery;
+                    var laypage = layui.laypage;
+                    table.init('table', {
+                        width: 1004
+                    });
+                    var queryVar = getAllQueryVariableWithout(['page']);//不包含page的变量字符串
+                    laypage.render({
+                        elem: 'fenye',
+                        count: "{:config('paginate')['list_rows'] * $grade->lastPage()}", //数据总数
+                        limit: "{:config('paginate')['list_rows']}",//每页显示的条数
+                        curr: "{$Request.get.page}", //当前页
+                        groups: 5, //连续显示分页数
+                        layout: ['prev', 'page', 'next', 'skip'],
+                        jump: function (obj, first) {
+                            if (!first) {
+                                var currPage = obj.curr;//得到了当前页，用于向服务端请求对应数据
+                                location.href = "{:url('@system/gradeManage')}" + queryVar + 'page=' + currPage;
+                            }
+                        }
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>

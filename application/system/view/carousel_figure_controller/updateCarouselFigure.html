@@ -1,0 +1,198 @@
+<style>
+    .add-privilege{
+        width: 100%;
+        overflow-x: scroll;
+    }
+    .input-date {
+        margin-top: 10px;
+        display: flex;
+    }
+    .add-privilege form{
+        width: 50%;
+    }
+    .input-date input{
+        height: 30px;
+        width: 160px;
+    }
+    .flex-input{
+        display: flex;
+        align-items: center;
+    }
+    .flex-input input{
+        width: 140px;
+    }
+    .jcrop-holder #preview-pane{
+        display:block;
+        position: absolute;
+        z-index:2000;top:0;
+        left: 755px;
+        padding:6px;
+        border:1px rgba(0,0,0,.4) solid;
+        border-radius:6px;
+        background-color:white;
+        box-shadow:1px 1px 5px 2px rgba(0, 0, 0, 0.2);
+    }
+    #preview-pane .preview-container{
+        width:375px;
+        height:150px;
+        overflow:hidden;
+    }
+</style>
+<div class="layui-body">
+        <div class="add-privilege">
+            <fieldset class="layui-elem-field layui-field-title" style="width: 70%;">
+                <legend>修改轮播图</legend>
+            </fieldset>
+            <form class="layui-form" action="{:url('@system/updateCarouselFigure')}" method="post" enctype="multipart/form-data">
+                <input name="cf_id" value="{$carouselFigure:cf_id}" style="display: none">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">图片标题</label>
+                    <div class="layui-input-block">
+                        <input required name="cf_title" value="{$carouselFigure:cf_title}" class="layui-input" placeholder="输入商品标题" style="width: 200px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">图片排序</label>
+                    <div class="layui-input-block">
+                        <input required name="cf_sort" value="{$carouselFigure:cf_sort}" class="layui-input" placeholder="输入图片序号" style="width: 200px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">URL链接</label>
+                    <div class="layui-input-block">
+                        <input name="cf_href" value="{$carouselFigure:cf_href}" class="layui-input" placeholder="轮播图URL链接" style="width: 200px;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">轮播图片</label>
+                    <div class="layui-input-block">
+                        <div class="layui-btn layui-btn-normal layui-btn-small" id="headPicture" style="width: 70px;height: 30px;">
+                            <input name="cf_url" accept="image/*" type="file" onchange="imgPreview(this)" style="position:absolute;left:0;height:30px;align-items:center;z-index:1;opacity: 0;">
+                            <div style="position: absolute;z-index: 0;">上传图片</div>
+                        </div>
+                        <img id="img" src="{$carouselFigure:cf_url}">
+                        <div style="display: flex;">
+                            <img  id="preview">
+                            <div id="preview-pane">
+                                <div class="preview-container">
+                                    <img class="jcrop-preview" alt="Preview">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input name="coord" style="display: none">
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-block">
+                        {if $carouselFigure:cf_status===0}
+                        <input lay-filter="switch" type="checkbox" lay-skin="switch" lay-text="是|否">
+                        {else/}
+                        <input lay-filter="switch" type="checkbox" lay-skin="switch" lay-text="是|否" checked>
+                        {/if}
+                        <input name="cf_status" value="{$carouselFigure:cf_status}" style="display:none;">
+                    </div>
+                </div>
+                <div class="layui-input-block">
+                    <button type="submit" class="layui-btn layui-btn-small layui-btn-normal">修改</button>
+                </div>
+            </form>
+        </div>
+        <script>
+            var coord = [];
+            var jcrop_api, boundx, boundy,
+
+                // Grab some information about the preview pane
+                $preview = $('#preview-pane'),
+                $pcnt = $('#preview-pane .preview-container'),
+                $pimg = $('#preview-pane .preview-container img'),
+
+                xsize = $pcnt.width(),
+                ysize = $pcnt.height();
+
+            console.log('init',[xsize,ysize]);
+            $('#preview').Jcrop({
+                boxWidth: 750,
+                onChange: updatePreview,
+                onSelect: updatePreview,
+                aspectRatio: xsize / ysize
+            },function(){
+                // Use the API to get the real image size
+                // Store the API in the jcrop_api variable
+                document.getElementsByClassName('jcrop-holder')[0].setAttribute('hidden',"")
+                jcrop_api = this;
+                // Move the preview into the jcrop container for css positioning
+                $preview.appendTo(jcrop_api.ui.holder);
+            });
+
+            function updatePreview(c){
+                var bounds = jcrop_api.getBounds();
+                boundx = bounds[0];
+                boundy = bounds[1];
+                console.log(boundx)
+                if (parseInt(c.w) > 0) {
+                    var rx = xsize / c.w;
+                    var ry = ysize / c.h;
+                    $pimg.css({
+                        width: rx * boundx + 'px',
+                        height: Math.round(ry * boundy) + 'px',
+                        marginLeft: '-' + Math.round(rx * c.x) + 'px',
+                        marginTop: '-' + Math.round(ry * c.y) + 'px'
+                    });
+                }
+                coord = new Object();
+                coord.x = c.x;
+                coord.y = c.y;
+                coord.height = c.h;
+                coord.width = c.w;
+                //console.log(coord);
+                document.getElementsByName("coord")[0].value = JSON.stringify(coord);
+            };
+            window.onload = function () {
+                document.getElementById('preview-pane').setAttribute("style","display:none")
+            }
+            function imgPreview(fileDom){
+                //判断是否支持FileReader
+                if (window.FileReader) {
+                    var reader = new FileReader();
+                } else {
+                    alert("您的设备不支持图片预览功能，如需该功能请升级您的设备！");
+                }
+
+                //获取文件
+                var file = fileDom.files[0];
+                var imageType = /^image\//;
+                //是否是图片
+                if (!imageType.test(file.type)) {
+                    alert("请选择图片！");
+                    return;
+                }
+                //读取完成
+                reader.onload = function(e) {
+                    if(fileDom.name == 'cf_url'){
+                        document.getElementById('img').setAttribute("style","display: none");
+                        //获取图片dom
+                        var img = document.getElementsByClassName("jcrop-preview")[0];
+                        //图片路径设置为读取的图片
+                        img.src = e.target.result;
+                        document.getElementById('preview-pane').setAttribute("style","")
+                        document.getElementsByClassName('jcrop-holder')[0].removeAttribute("hidden")
+                        jcrop_api.setImage(e.target.result);
+                    }
+
+                };
+                reader.readAsDataURL(file);
+            }
+            layui.use(['form'],function () {
+                var form = layui.form;
+                form.on('switch(switch)',function (data) {
+                    if(data.elem.checked){
+                        document.getElementsByName('cf_status')[0].value = 1;
+                    }else{
+                        document.getElementsByName('cf_status')[0].value = 0;
+                    }
+                })
+            })
+        </script>
+</div>
+

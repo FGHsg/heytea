@@ -1,0 +1,287 @@
+<style>
+    .shop-edit-view{
+        width: 100%;
+        overflow-x: scroll;
+        display: flex;
+    }
+    .shop-edit{
+        width: 70%;
+    }
+    .input-date {
+        margin-top: 10px;
+        display: flex;
+    }
+    .input-date input{
+        height: 30px;
+        width: 160px;
+    }
+    .flex-input{
+        display: flex;
+        align-items: center;
+    }
+    .flex-input input{
+        width: 140px;
+    }
+</style>
+<div class="layui-body">
+    <div class="shop-edit-view">
+        <div class="shop-edit">
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>店铺设置</legend>
+            </fieldset>
+            {volist name="business" id="vo"}
+            <form class="layui-form" action="{:url('@system/editBusiness')}" method="post">
+                <input name="b_id" value="6" style="display: none">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">营业状态</label>
+                    <div class="layui-input-block">
+                        {if $vo.b_rest==1}
+                        <button id="b_rest_0" onclick="rest(1)" type="button" class="layui-btn layui-btn-small layui-btn-normal">营业中</button>
+                        <button id="b_rest_1" onclick="rest(0)" type="button" class="layui-btn layui-btn-small layui-btn-primary">打烊</button>
+                        {elseif $vo.b_rest==0}
+                        <button id="b_rest_0" onclick="rest(1)" type="button" class="layui-btn layui-btn-small layui-btn-primary">营业中</button>
+                        <button id="b_rest_1" onclick="rest(0)" type="button" class="layui-btn layui-btn-small layui-btn-normal">打烊</button>
+                        {/if}
+                        <input name="b_rest" value="{$vo.b_rest}" style="display: none">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">营业时间</label>
+                    <div class="layui-input-block">
+                        <div>
+                            {if $vo.b_open_date[0]==0}
+                            <input lay-filter="checkbox" data-id="0" type="checkbox" lay-skin="primary" title="星期一">
+                            {elseif $vo.b_open_date[0]==1/}
+                            <input lay-filter="checkbox" data-id="0" type="checkbox" lay-skin="primary" title="星期一" checked>
+                            {/if}
+                            {if $vo.b_open_date[1]==0}
+                            <input lay-filter="checkbox" data-id="1" type="checkbox" lay-skin="primary" title="星期二">
+                            {elseif $vo.b_open_date[1]==1/}
+                            <input lay-filter="checkbox" data-id="1" type="checkbox" lay-skin="primary" title="星期二" checked>
+                            {/if}
+                            {if $vo.b_open_date[2]==0}
+                            <input lay-filter="checkbox" data-id="2" type="checkbox" lay-skin="primary" title="星期三">
+                            {elseif $vo.b_open_date[2]==1/}
+                            <input lay-filter="checkbox" data-id="2" type="checkbox" lay-skin="primary" title="星期三" checked>
+                            {/if}
+                            {if $vo.b_open_date[3]==0}
+                            <input lay-filter="checkbox" data-id="3" type="checkbox" lay-skin="primary" title="星期四">
+                            {elseif $vo.b_open_date[3]==1/}
+                            <input lay-filter="checkbox" data-id="3" type="checkbox" lay-skin="primary" title="星期四" checked>
+                            {/if}
+                            {if $vo.b_open_date[4]==0}
+                            <input lay-filter="checkbox" data-id="4" type="checkbox" lay-skin="primary" title="星期五">
+                            {elseif $vo.b_open_date[4]==1/}
+                            <input lay-filter="checkbox" data-id="4" type="checkbox" lay-skin="primary" title="星期五" checked>
+                            {/if}
+                            {if $vo.b_open_date[5]==0}
+                            <input lay-filter="checkbox" data-id="5" type="checkbox" lay-skin="primary" title="星期六">
+                            {elseif $vo.b_open_date[5]==1/}
+                            <input lay-filter="checkbox" data-id="5" type="checkbox" lay-skin="primary" title="星期六" checked>
+                            {/if}
+                            {if $vo.b_open_date[6]==0}
+                            <input lay-filter="checkbox" data-id="6" type="checkbox" lay-skin="primary" title="星期日">
+                            {elseif $vo.b_open_date[6]==1/}
+                            <input lay-filter="checkbox" data-id="6" type="checkbox" lay-skin="primary" title="星期日" checked>
+                            {/if}
+                            <input name="b_open_date" value="{$vo.b_open_date}" style="display: none">
+                        </div>
+                        <div class="input-date">
+                            <input value="{$vo.b_open}" id="chooseStartTime" name="b_open" class="layui-input" placeholder="选择开始时间">
+                            <div style="font-size: 30px;text-align: center;width: 60px;">—</div>
+                            <input value="{$vo.b_close}" id="chooseEndTime" name="b_close" class="layui-input" placeholder="选择结束时间">
+                        </div>
+                        <div class="layui-word-aux">备注：系统会根据营业时间自动变更营业状态</div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">起送价</label>
+                    <div class="layui-input-inline">
+                        <div class="flex-input">
+                            <input name="b_minprice" value="{$vo.b_minprice}" class="layui-input" placeholder="输入起送价钱">
+                            <div class="layui-word-aux">元</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">服务费</label>
+                    <div class="layui-input-block">
+                        <div class="flex-input">
+                            饭盒：<input name="b_lunchbox" value="{$vo.b_lunchbox}" class="layui-input" placeholder="输入饭盒费">元
+                        </div>
+                        <div class="flex-input">
+                            运费：<input name="b_distribution" value="{$vo.b_distribution}" class="layui-input" placeholder="输入运费">元
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系电话</label>
+                    <div class="layui-input-block">
+                        <div class="flex-input">
+                            <input name="b_phone" value="{$vo.b_phone}" class="layui-input" placeholder="输入联系电话">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">店铺地址</label>
+                    <div class="layui-input-block">
+                        <div style="display: flex;flex-direction: row;align-items: center">
+                            <div name="b_addressl">{$vo.b_address}</div>
+                            <input name="b_address" value="{$vo.b_address}" style="display: none">
+                            <button type="button" onclick="getLocation()" class="layui-btn layui-btn-small layui-btn-normal">定位</button>
+                        </div>
+                    </div>
+                    <div id="allmap"></div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">配送范围</label>
+                    <div class="layui-input-block">
+                        <div class="flex-input">
+                            <input name="b_area" class="layui-input" value="{$vo.b_area}" placeholder="输入配送范围">
+                            <div class="layui-word-aux">km</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">打印连单数</label>
+                    <div class="layui-input-block">
+                        {if $vo.b_voucher_number==1}
+                        <input lay-filter="radio" type="radio" value="1" title="1" lay-skin="primary" checked>
+                        {else/}
+                        <input lay-filter="radio" type="radio" value="1" title="1" lay-skin="primary">
+                        {/if}
+                        {if $vo.b_voucher_number==2}
+                        <input lay-filter="radio" type="radio" value="2" title="2" lay-skin="primary" checked>
+                        {else/}
+                        <input lay-filter="radio" type="radio" value="2" title="2" lay-skin="primary">
+                        {/if}
+                        {if $vo.b_voucher_number==3}
+                        <input lay-filter="radio" type="radio" value="3" title="3" lay-skin="primary" checked>
+                        {else/}
+                        <input lay-filter="radio" type="radio" value="3" title="3" lay-skin="primary">
+                        {/if}
+                        {if $vo.b_voucher_number==4}
+                        <input lay-filter="radio" type="radio" value="4" title="4" lay-skin="primary" checked>
+                        {else/}
+                        <input lay-filter="radio" type="radio" value="4" title="4" lay-skin="primary">
+                        {/if}
+                    </div>
+                    <input name="b_voucher_number" value="{$vo.b_voucher_number}" style="display:none;">
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">自动接单</label>
+                    <div class="layui-input-block">
+                        {if $vo.b_autoorder==1}
+                        <input value="1" lay-filter="b_autoorder" type="checkbox" lay-skin="switch" lay-text="开|关" checked="">
+                        {elseif $vo.b_autoorder==0/}
+                        <input value="1" lay-filter="b_autoorder" type="checkbox" lay-skin="switch" lay-text="开|关">
+                        {/if}
+                        <input name="b_autoorder" value="{$vo.b_autoorder}" style="display: none;">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">接单时自动打印</label>
+                    <div class="layui-input-block">
+                        {if $vo.b_autoprint==1}
+                        <input value="1" lay-filter="b_autoprint" type="checkbox" lay-skin="switch" lay-text="开|关" checked="">
+                        {elseif $vo.b_autoprint==0/}
+                        <input value="1" lay-filter="b_autoprint" type="checkbox" lay-skin="switch" lay-text="开|关">
+                        {/if}
+                        <input name="b_autoprint" value="{$vo.b_autoprint}" style="display: none;">
+                    </div>
+                </div>
+                <div class="layui-input-block">
+                    <a class="layui-btn layui-btn-small layui-bg-gray" href="{:url('@system/businessSetting')}">取消</a>
+                    <button type="submit" class="layui-btn layui-btn-small layui-btn-normal">完成</button>
+                </div>
+            </form>
+            {/volist}
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=IE20DOvxzppLtKHl4XBdZZWbDtUYCuXE"></script>
+<script>
+    function getLocation() {
+        document.getElementById("allmap").setAttribute("style","width: 800px;height: 300px;margin-left: 30px;")
+        // 百度地图API功能
+        var map = new BMap.Map("allmap");
+        map.enableScrollWheelZoom();   //启用滚轮放大缩小，默认禁用
+        map.enableContinuousZoom();    //启用地图惯性拖拽，默认禁用
+        map.centerAndZoom("广州",12);
+        var geoc = new BMap.Geocoder();
+
+        map.addEventListener("click", function(e){
+            var pt = e.point;
+            map.clearOverlays();
+            var marker = new BMap.Marker(pt); // 创建点
+            map.addOverlay(marker);
+            geoc.getLocation(pt, function(rs){
+                var addComp = rs.addressComponents;
+                var location = addComp.province + ", " + addComp.city + ", " + addComp.district + ", " + addComp.street + ", " + addComp.streetNumber;
+                //alert(addComp.province + ", " + addComp.city + ", " + addComp.district + ", " + addComp.street + ", " + addComp.streetNumber);
+                document.getElementsByName('b_address')[0].value = location;
+                document.getElementsByName('b_addressl')[0].innerHTML = location;
+            });
+        });
+    }
+    function rest(label) {
+        document.getElementById('b_rest').value = label;
+        if(label == 1){
+            document.getElementById('b_rest_0').setAttribute('class','layui-btn layui-btn-normal layui-btn-small');
+            document.getElementById('b_rest_1').setAttribute('class','layui-btn layui-btn-primary layui-btn-small');
+            document.getElementsByName('b_rest')[0].value = 1;
+        }else if(label ==0){
+            document.getElementById('b_rest_0').setAttribute('class','layui-btn layui-btn-normal layui-btn-small');
+            document.getElementById('b_rest_1').setAttribute('class','layui-btn layui-btn-primary layui-btn-small');
+            document.getElementsByName('b_rest')[0].value = 0;
+        }
+
+    }
+    layui.use(['form','laydate'],function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var laydateEnd = layui.laydate;
+        laydate.render({
+            elem: "#chooseStartTime",
+            type: 'time'
+        });
+        laydateEnd.render({
+            elem: "#chooseEndTime",
+            type: 'time'
+        });
+        form.on('switch(b_autoorder)',function (data) {
+            if(data.elem.checked){
+                document.getElementsByName('b_autoorder')[0].value = 1;
+            }else{
+                document.getElementsByName('b_autoorder')[0].value = 0;
+            }
+        });
+        form.on('switch(b_autoprint)',function (data) {
+            if(data.elem.checked){
+                document.getElementsByName('b_autoprint')[0].value = 1;
+            }else{
+                document.getElementsByName('b_autoprint')[0].value = 0;
+            }
+        });
+        form.on('radio(raio)',function (data) {
+            document.getElementsByName('b_voucher_number')[0].value = data.value;
+        })
+        form.on('checkbox(checkbox)',function (data) {
+            if(data.elem.checked){
+                var value = document.getElementsByName('b_open_date')[0].value;
+                value = value.split("");
+                value.splice(data.elem.dataset.id,1,'1');
+                value = value.join('');
+                document.getElementsByName('b_open_date')[0].value = value;
+            }else{
+                var value = document.getElementsByName('b_open_date')[0].value;
+                value = value.split('');
+                value.splice(data.elem.dataset.id,1,'0');
+                value = value.join('');
+                document.getElementsByName('b_open_date')[0].value = value;
+            }
+            //console.log(document.getElementsByName('b_open_date')[0].value)
+        })
+    })
+</script>

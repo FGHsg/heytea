@@ -1,0 +1,111 @@
+<style>
+
+    .main-part-article{
+        width: 100%;
+        overflow-x: scroll;
+    }
+    .action-part {
+        padding-left: 20px;
+    }
+
+    .action-part-top {
+        display: flex;
+        height: 50px;
+        align-items: center;
+        margin: 0;
+    }
+
+    .action-part-top input {
+        width: 150px;
+        margin-right: 20px;
+    }
+
+    .action-part form {
+        flex-direction: column;
+    }
+
+    .action-part form div {
+        flex-direction: row;
+    }
+
+    .action-part table {
+        margin: 0;
+    }
+</style>
+<div class="layui-body">
+    <div class="main-part-article"><!--页面主体-->
+        <div class="action-part">
+            <div class="action-part-top">
+                <a class="layui-btn layui-btn-normal" href="{:url('@system/addCarouselFigure')}">添加轮播图</a>
+            </div>
+            <table class="layui-table" id="table" lay-filter="table">
+                <thead>
+                <tr>
+                    <th lay-data="{field: 'cf_title', width: 200, align: 'center'}">标题</th>
+                    <th lay-data="{field: 'cf_url', width: 500, align: 'center'}">图片</th>
+                    <th lay-data="{field: 'cf_sort', width: 200, align: 'center'}">排序</th>
+                    <th lay-data="{field: 'cf_status', width: 200, align: 'center'}">状态</th>
+                    <th lay-data="{field: 'action', width: 200, align: 'center'}">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {volist name="carouselFigureList" id="vo"}
+                <tr>
+                    <td>{$vo.cf_title}</td>
+                    <td><img src="{$vo.cf_url}" width="100"></td>
+                    <td>{$vo.cf_sort}</td>
+                    <td>{if $vo.cf_status==0}禁用{else/}启用{/if}</td>
+                    <td>
+                        <a class="layui-btn layui-btn-normal layui-btn-mini"  href="{:url('@system/updateCarouselFigure',['cf_id'=>$vo.cf_id])}">修改</a>
+                        <button class="layui-btn layui-btn-danger layui-btn-mini" onclick="deleteCF('{$vo.cf_id}')">删除</button>
+                    </td>
+                </tr>
+                {/volist}
+                </tbody>
+            </table>
+            <div class="fenyeWrap">
+                <div id="fenye"></div>
+                <div>共 {$carouselFigureList->total()} 条</div>
+            </div>
+            <script>
+                function deleteCF(cf_id) {
+                    layui.use('layer',function () {
+                        var layer = layui.layer;
+                        layer.open({
+                            type: 1,
+                            title: '确定删除',
+                            btn: ['确定','取消'],
+                            yes: function () {
+                                location.href = "{:url('@system/deleteCarouselFigure')}" + "?cf_id=" + cf_id;
+                            },
+                            btn2: function () {
+                                layer.closeAll();
+                            }
+                        })
+                    })
+                }
+                layui.use(['table', 'layer','laypage'], function () {
+                    var table = layui.table;
+                    var layer = layui.layer;
+                    var $ = layui.jquery;
+                    var laypage = layui.laypage;
+                    var queryVar = getAllQueryVariableWithout(['page']);//不包含page的变量字符串
+                    laypage.render({
+                        elem: 'fenye',
+                        count: "{:config('paginate')['list_rows'] * $carouselFigureList->lastPage()}", //数据总数
+                        limit: "{:config('paginate')['list_rows']}",//每页显示的条数
+                        curr: "{$Request.get.page}", //当前页
+                        groups: 5, //连续显示分页数
+                        layout: ['prev', 'page', 'next', 'skip'],
+                        jump: function(obj, first){
+                            if(!first){
+                                var currPage = obj.curr;//得到了当前页，用于向服务端请求对应数据
+                                location.href = "{:url('@system/carouselFigureList')}" + queryVar + 'page=' + currPage;
+                            }
+                        }
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>

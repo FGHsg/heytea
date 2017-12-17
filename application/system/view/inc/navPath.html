@@ -1,0 +1,31 @@
+{if condition="$Think.cookie.isExpand == 'off'"}
+<div class="layui-breadcrumb" style="left:0px;">
+{else/}
+<div class="layui-breadcrumb" style="left:200px;">
+{/if}
+	<i class="fa fa-home"></i>
+	<a href="javascript:void(0)"><cite>首页</cite></a>
+	
+	{notempty name="$navPath.twoRuleInfo"}
+	{if condition="$navPath.twoRuleInfo.rule == 'null'"}
+	<a><cite>{$navPath.twoRuleInfo.rule_name}</cite></a>
+	{else/}
+	<a href='{:url("@".$navPath["twoRuleInfo"]["rule"])}'>{$navPath.twoRuleInfo.rule_name}</a>
+	{/if}
+	{/notempty}
+	
+	{notempty name="$navPath.threeRuleInfo"}
+	{if condition="$navPath.threeRuleInfo.rule == 'null'"}
+	<a><cite>{$navPath.threeRuleInfo.rule_name}</cite></a>
+	{else/}
+	<a href='{:url("@".$navPath["threeRuleInfo"]["rule"])}'>{$navPath.threeRuleInfo.rule_name}</a>
+	{/if}
+	{/notempty}
+	
+	{notempty name="$navPath.fourRuleInfo"}
+	{if condition="$navPath.fourRuleInfo.rule == 'null'"}
+	<a><cite>{$navPath.fourRuleInfo.rule_name}</cite></a>
+	{else/}
+	<a href='{:url("@".$navPath["fourRuleInfo"]["rule"])}'>{$navPath.fourRuleInfo.rule_name}</a>
+	{/notempty}
+</div>

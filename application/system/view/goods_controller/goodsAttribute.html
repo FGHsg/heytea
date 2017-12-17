@@ -1,0 +1,170 @@
+<style>
+    .main-part-article{
+        width: 100%;
+        overflow-x: scroll;
+    }
+    .main-part-article-header{
+        height: 40px;
+        padding-left: 20px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        background-color: #F0F0F0;
+        border-bottom: 1px solid;
+        border-color: #c2c2c2;
+    }
+    .action-part{
+        padding-left: 20px;
+    }
+    .action-part-top{
+        display: flex;
+        height: 50px;
+        align-items: center;
+        margin: 0;
+    }
+    .action-part-top input{
+        width: 150px;
+        margin-right: 20px;
+    }
+    .action-part form{
+        flex-direction: column;
+    }
+    .action-part form div{
+        flex-direction: row;
+    }
+    .action-part table{
+        margin: 0;
+    }
+</style>
+<div class="layui-body">
+    <div class="main-part-article"><!--页面主体-->
+        <div class="action-part">
+            <form class="layui-form" action="{:url('@system/addGoodsAttributeOperation')}">
+                <div class="action-part-top layui-form-item" style="height: auto;margin-bottom: 20px;">
+                    <input name="ga_name" type="text" id="inputAttribute" lay-verify="required"  placeholder="输入属性名称" class="layui-input" style="width: auto;height: 30px;">
+                    <div style="position: relative;top: 10px;">
+                        <input name="ga_class" type="text" id="inputAttributeClass"  lay-verify="gaclass" placeholder="输入属性分类" class="layui-input" style="width: 300px;height:30px;">
+                        <div class="layui-word-aux">备注：属性之间必须用“、”号（顿号）隔开</div>
+                    </div>
+                    <button lay-submit class="layui-btn-normal layui-btn layui-btn-small" >添加属性</button>
+                </div>
+            </form>
+
+            <table class="layui-table" id="table" lay-filter="table">
+                <thead>
+                <tr>
+                    <th lay-data="{field: 'attribute-name', width: 220, align: 'center'}">属性名称</th>
+                    <th lay-data="{field: 'attribute-classification', width: 380, align: 'center'}">属性分类</th>
+                    <th lay-data="{field: 'createtime', width: 180, align: 'center'}">创建时间</th>
+                    <th lay-data="{field: 'action', width: 140, align: 'center'}">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {volist name="goods_attribute" id="vo"}
+                <tr>
+                    <td>{$vo.ga_name}</td>
+                    <td>{$vo.ga_class}</td>
+                    <td>{$vo.create_time}</td>
+                    <td>
+                        <button class="layui-btn layui-btn-normal layui-btn-mini" onclick="edit('{$vo.ga_id}','{$vo.ga_name}','{$vo.ga_class}')">修改</button>
+                        <button class="layui-btn layui-btn-danger layui-btn-mini" onclick="deleteAtrribute('{$vo.ga_id}')">删除</button>
+                    </td>
+                </tr>
+                {/volist}
+                </tbody>
+            </table>
+            <div class="fenyeWrap">
+                <div id="fenye"></div>
+                <div>共 {$goods_attribute->total()} 条</div>
+            </div>
+            <div id="edit" style="display: none">
+                <form class="layui-form" style="margin-top: 20px;" action="{:url('@system/editGoodsAttributeOperation')}" method="post">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">属性名称</label>
+                        <div class="layui-input-block">
+                            <input name="ga_name" value="" class="layui-input" placeholder="输入属性名称" style="width: 120px;">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">属性名称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="ga_class" class="layui-input" lay-verify="gaclass" placeholder="输入属性分类" style="width: 420px;">
+                            <div class="layui-word-aux">备注：属性之间必须用“、”号（顿号）隔开</div>
+                        </div>
+                    </div>
+                    <input name="ga_id" value="" style="display: none">
+                    <div class="layui-input-block">
+                        <button lay-submit class="layui-btn layui-btn-normal layui-btn-mini">修改</button>
+                    </div>
+                </form>
+            </div>
+
+            <script>
+                function edit(ga_id,ga_name,ga_class) {
+                    document.getElementsByName("ga_id")[0].value = ga_id;
+                    document.getElementsByName("ga_name")[1].value = ga_name;
+                    document.getElementsByName("ga_class")[1].value = ga_class;
+                    layui.use(['layer','form'],function () {
+                        var layer = layui.layer;
+                        var form = layui.form;
+                        layer.open({
+                            type: 1,
+                            content: $('#edit'),
+                            shade: 0,
+                            area: ['550px','250px'],
+                        })
+                    })
+                }
+                function deleteAtrribute(ga_id) {
+                    layui.use(['layer'],function (){
+                        var layer = layui.layer;
+                        layer.open({
+                            type: 1,
+                            title: '确认删除',
+                            btn: ['确定','取消'],
+                            yes: function (index,layero) {
+                                location.href = "{:url('@system/deleteGoodsAttributeOperation')}"+"?ga_id="+ga_id
+                            },
+                            btn2:function (index,layero) {
+                                layer.closeAll();
+                            }
+                        })
+                    })
+                }
+                layui.use(['table', 'layer', 'form', 'laydate','laypage'], function () {
+                    var table = layui.table;
+                    var layer = layui.layer;
+                    var form = layui.form;
+                    var laydate = layui.laydate;
+                    var $ = layui.jquery;
+                    var laypage = layui.laypage;
+                    var queryVar = getAllQueryVariableWithout(['page']);//不包含page的变量字符串
+                    laypage.render({
+                        elem: 'fenye',
+                        count: "{:config('paginate')['list_rows'] * $goods_attribute->lastPage()}", //数据总数
+                        limit: "{:config('paginate')['list_rows']}",//每页显示的条数
+                        curr: "{$Request.get.page}", //当前页
+                        groups: 5, //连续显示分页数
+                        layout: ['prev', 'page', 'next', 'skip'],
+                        jump: function(obj, first){
+                            if(!first){
+                                var currPage = obj.curr;//得到了当前页，用于向服务端请求对应数据
+                                location.href = "{:url('@system/goodsAttribute')}" + queryVar + 'page=' + currPage;
+                            }
+                        }
+                    });
+                    table.init('table',{
+                        width: 925,
+                        even: true,
+                    })
+                    form.verify({
+                        gaclass: [
+                            /[\u3001]/,
+                            '请输入正确格式'
+                        ]
+                    })
+                });
+            </script>
+        </div>
+    </div>
+</div>

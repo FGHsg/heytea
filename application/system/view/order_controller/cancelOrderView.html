@@ -1,0 +1,366 @@
+<style>
+    .main-part-article{
+        width: 100%;
+        overflow-x: scroll;
+    }
+    .main-part-article-header{
+        height: 40px;
+        padding-left: 20px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        background-color: #F0F0F0;
+        border-bottom: 1px solid;
+        border-color: #c2c2c2;
+    }
+    .action-part{
+        padding-left: 20px;
+    }
+    .action-part-top{
+        display: flex;
+        height: 50px;
+        align-items: center;
+        margin: 0;
+    }
+    .action-part-top input{
+        width: 150px;
+        margin-right: 20px;
+    }
+    .action-part form{
+        flex-direction: column;
+    }
+    .action-part form div{
+        flex-direction: row;
+    }
+    .action-part table{
+        margin: 0;
+    }
+    .order-item{
+        width: 1000px;
+        margin: 0;
+        box-shadow: 1px 2px #c2c2c2;
+        margin-bottom: 10px;
+    }
+    .order-item-header{
+        height: 50px;
+        display: flex;
+        align-items: center;
+        background-color: #F0F0F0;
+        font-size: 13px;
+    }
+    .order-item-header div{
+        display: flex;
+        flex-direction: row;
+        width: 42.5%;
+        height: auto;
+    }
+    .order-item-header-middle{
+        width: 15%;
+    }
+    .order-number{
+        margin-left: 10px;
+    }
+    .order-time{
+
+    }
+    .order-status{
+        border-left: 1px solid;
+        border-color: #c2c2c2;
+        padding-left: 5px;
+        display: flex;
+        align-items: center;
+    }
+    .order-way{
+        margin-left: auto;
+    }
+    .order-code{
+        width: auto;
+        align-items: center;
+        margin-right: 40px;
+    }
+    .order-sender{
+        display: flex;
+    }
+    .order-user div{
+
+        margin-top: 10px;
+        margin-right: 10px;
+    }
+    .order-user{
+        padding-left: 10px;
+    }
+
+    .commodity{
+        padding-left: 10px;
+    }
+    .commodity-message{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        height: 40px;
+    }
+    .commodity-message div{
+        width: 25%;
+    }
+
+    .order-all{
+        position: absolute;
+        right: 70px;
+        top: 150px;
+        height: 120px;
+        width: 180px;
+        border: 1px solid;
+        border-color: #F0F0F0;
+        border-radius: 2px;
+        box-shadow: 2px 2px #F0F0F0;
+        background-color: whitesmoke;
+    }
+    .order-all-header{
+        display: flex;
+        background-color: #F0F0F0;
+        height: 30px;
+        align-items: center;
+        padding-left: 5px;
+    }
+    .recieve-amount{
+        margin-left: 10px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    .sell-mount{
+        margin-left: 10px;
+        margin-top: 5px;
+    }
+</style>
+<div class="layui-body">
+    <div class="main-part-article"><!--页面主体-->
+        <div class="action-part">
+            <form class="layui-form">
+                <div class="action-part-top layui-form-item">
+                    <button type="button" id="0" onclick="query(0)" class="layui-btn layui-btn-normal layui-btn-small">未处理</button>
+                    <button type="button" id="1" onclick="query(1)" class="layui-btn layui-bg-gray layui-btn-small">已处理</button>
+                </div>
+            </form>
+            <div id="order" class="order-list">
+                {volist name="order" id="voo"}
+                <div class="order-item">
+                    <div class="order-item-header">
+                        <div>
+                            <div class="order-number">#{$voo.o_id}</div>
+                            <div class="order-time">送达时间：{$voo.o_complete_time}</div>
+                            <div class="order-status">{$voo.o_status}</div>
+                        </div>
+                        <div class="order-item-header-middle"><div class="order-way">{$voo.o_class}</div></div>
+                        <div>
+                            <div class="order-code">订单号:{$voo.o_number}</div>
+                            <div style="margin-left: 0%;">
+                                <a class="layui-btn layui-btn-small layui-btn-normal" href="{:url('@system/acceptReturnOrder',['o_id'=>$voo.o_id])}">接受</a>
+                                <a class="layui-btn layui-btn-small layui-btn-danger" href="{:url('@system/rejectReturnOrder',['o_id'=>$voo.o_id])}">拒绝</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="" style="background-color: #faeed5;display: flex;flex-direction: row;border: 1px solid;border-color: #f8d68f">
+                        <image class="layui-icon" src="../../../public/static/images//system/warning-sign.png" width="20" style="width: 20px;height: 20px;margin-left: 10px;margin-right: 10px;"></image>
+                        <div>
+                            {$voo.o_reason}
+                        </div>
+                    </div>
+                    <div class="order-user">
+                        <div class="order-sender">
+                            <div>{$voo.o_receiver}</div>
+                            <div class="layui-word-aux">#下单{$voo.o_sum}次</div>
+                        </div>
+                        <div>{$voo.o_phone}</div>
+                        <div>{$voo.o_address}</div>
+                    </div>
+                    <hr>
+                    <div class="commodity">
+                        <div>
+                            商品信息
+                        </div>
+                        {volist name="$voo.o_goods" id="voog"}
+                        <div class="commodity-message">
+                            <div>{$voog:g_name}</div>
+                            <div>${$voog:g_price}</div>
+                            <div>×{$voog:number}</div>
+                            <div></div>
+                            <div>${$voog:g_price}</div>
+                        </div>
+                        {/volist}
+                    </div>
+                    <hr>
+                    <div class="commodity">
+                        <div>
+                            附加费
+                        </div>
+                        {if $voo.o_lunchbox_number != 0}
+                        <div class="commodity-message">
+                            <div>餐盒</div>
+                            <div>${$voo.o_lunchbox}</div>
+                            <div>×{$voo.o_lunchbox_number}</div>
+                            <div></div>
+                            <div>${$voo.o_lunchbox * $voo.o_lunchbox_number}</div>
+                        </div>
+                        {/if}
+                        {if $voo.o_distribution != 0}
+                        <div class="commodity-message">
+                            <div>配送</div>
+                            <div>$1.00</div>
+                            <div>×1</div>
+                            <div></div>
+                            <div>${$voo.o_distribution}</div>
+                        </div>
+                        {/if}
+                    </div>
+                    <hr>
+                    <div class="commodity">
+                        <div>
+                            备注
+                        </div>
+                        <div>
+                            {$voo.o_remarks}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="commodity " style="display:flex;flex-direction: row;height: 30px;">
+                        <div style="width: 80%;">
+                            本单收入
+                        </div>
+                        <div class="all-in">
+                            ${$voo.o_sum}
+                        </div>
+                    </div>
+                </div>
+                {/volist}
+            </div>
+            <div id="order2" style="display: none" class="order-list">
+                {volist name="order2" id="voo"}
+                <div class="order-item">
+                    <div class="order-item-header">
+                        <div>
+                            <div class="order-number">#{$voo.o_id}</div>
+                            <div class="order-time">送达时间：{$voo.o_complete_time}</div>
+                            <div class="order-status">{$voo.o_status}</div>
+                        </div>
+                        <div class="order-item-header-middle"><div class="order-way">{if $voo.o_class==0}线上订单{else/}到店取茶{/if}</div></div>
+                        <div>
+                            <div class="order-code">订单号:{$voo.o_number}</div>
+                            <div style="margin-left: 0%;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="" style="background-color: #faeed5;display: flex;flex-direction: row;border: 1px solid;border-color: #f8d68f">
+                        <image class="layui-icon" src="../../../public/static/images//system/warning-sign.png" width="20" style="width: 20px;height: 20px;margin-left: 10px;margin-right: 10px;"></image>
+                        <div>
+                            {$voo.o_reason}
+                        </div>
+                    </div>
+                    <div class="order-user">
+                        <div class="order-sender">
+                            <div>{$voo.o_receiver}</div>
+                            <div class="layui-word-aux">#下单{$voo.o_sum}次</div>
+                        </div>
+                        <div>{$voo.o_phone}</div>
+                        <div>{$voo.o_address}</div>
+                    </div>
+                    <hr>
+                    <div class="commodity">
+                        <div>
+                            商品信息
+                        </div>
+                        {volist name="$voo.o_goods" id="voog"}
+                        <div class="commodity-message">
+                            <div>{$voog:g_name}</div>
+                            <div>${$voog:g_price}</div>
+                            <div>×{$voog:number}</div>
+                            <div></div>
+                            <div>${$voog:g_price}</div>
+                        </div>
+                        {/volist}
+                    </div>
+                    <hr>
+                    <div class="commodity">
+                        <div>
+                            附加费
+                        </div>
+                        {if $voo.o_lunchbox_number != 0}
+                        <div class="commodity-message">
+                            <div>餐盒</div>
+                            <div>${$voo.o_lunchbox}</div>
+                            <div>×{$voo.o_lunchbox_number}</div>
+                            <div></div>
+                            <div>${$voo.o_lunchbox * $voo.o_lunchbox_number}</div>
+                        </div>
+                        {/if}
+                        {if $voo.o_distribution != 0}
+                        <div class="commodity-message">
+                            <div>配送</div>
+                            <div>$1.00</div>
+                            <div>×1</div>
+                            <div></div>
+                            <div>${$voo.o_distribution}</div>
+                        </div>
+                        {/if}
+                    </div>
+                    <hr>
+                    <div class="commodity">
+                        <div>
+                            备注
+                        </div>
+                        <div>
+                            无
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="commodity " style="display:flex;flex-direction: row;height: 30px;">
+                        <div style="width: 80%;">
+                            本单收入
+                        </div>
+                        <div class="all-in">
+                            ${$voo.o_sum}
+                        </div>
+                    </div>
+                </div>
+                {/volist}
+            </div>
+            <div class="order-all" >
+                <div class="order-all-header">
+                    今日订单概况
+                </div>
+                <div>
+                    <div class="recieve-amount">
+                        已接订单： {$count}笔
+                    </div>
+                    <div class="sell-mount">
+                        今日营业额：{$sum}元
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function query(label) {
+        if(label === 0){
+            document.getElementById('0').setAttribute('class','layui-btn layui-btn-normal layui-btn-small');
+            document.getElementById('1').setAttribute('class','layui-btn layui-bg-gray layui-btn-small');
+            document.getElementById('order').setAttribute('style','');
+            document.getElementById('order2').setAttribute('style','display:none');
+        }else if(label === 1){
+            document.getElementById('1').setAttribute('class','layui-btn layui-btn-normal layui-btn-small');
+            document.getElementById('0').setAttribute('class','layui-btn layui-bg-gray layui-btn-small');
+            document.getElementById('order').setAttribute('style','display:none');
+            document.getElementById('order2').setAttribute('style','');
+        }
+    }
+    layui.use(['layer', 'form', 'laydate'], function () {
+        var layer = layui.layer;
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var $ = layui.jquery;
+        laydate.render({
+            elem: '#chosetime',
+            range: '-'
+        })
+    });
+</script>
